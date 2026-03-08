@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTripDataStore } from "@/store/trip-data-store";
+import { useAddBudgetItem } from "@/hooks/use-trip-mutations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -411,7 +412,8 @@ function DailyBurnRate() {
 }
 
 export function BudgetView() {
-  const { trip, travelers, getTripSummary, addBudgetItem } = useTripDataStore();
+  const { trip, travelers, getTripSummary } = useTripDataStore();
+  const addBudgetItemMutation = useAddBudgetItem();
   const summary = getTripSummary();
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [expenseDescription, setExpenseDescription] = useState("");
@@ -430,7 +432,7 @@ export function BudgetView() {
   const handleAddExpense = () => {
     if (!expenseDescription || !expenseAmount) return;
     
-    addBudgetItem({
+    addBudgetItemMutation.mutate({
       tripId: trip.id,
       description: expenseDescription,
       category: expenseCategory,

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTripDataStore } from "@/store/trip-data-store";
+import { useCreateActivity, useReorderActivities } from "@/hooks/use-trip-mutations";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -67,8 +68,10 @@ export function TimeBlockSection({
   isLocked,
   isCompact = false,
 }: TimeBlockSectionProps) {
-  const { getActivitiesForTimeBlock, addActivity, reorderActivities, trip } =
+  const { getActivitiesForTimeBlock, trip } =
     useTripDataStore();
+  const createActivityMutation = useCreateActivity();
+  const reorderActivitiesMutation = useReorderActivities();
   const activities = getActivitiesForTimeBlock(timeBlock.id);
   const Icon = timeBlockIcons[timeBlock.type];
   const [isAddActivityOpen, setIsAddActivityOpen] = useState(false);
@@ -88,7 +91,7 @@ export function TimeBlockSection({
   const handleAddActivity = () => {
     if (!newActivityName || !trip) return;
 
-    addActivity({
+    createActivityMutation.mutate({
       tripId: trip.id,
       dayId,
       timeBlockId: timeBlock.id,
@@ -122,10 +125,11 @@ export function TimeBlockSection({
     const newOrder = [...activities];
     const [moved] = newOrder.splice(oldIndex, 1);
     newOrder.splice(newIndex, 0, moved);
-    reorderActivities(
-      timeBlock.id,
-      newOrder.map((a) => a.id)
-    );
+    reorderActivitiesMutation.mutate({
+      timeBlockId: timeBlock.id,
+      activityIds: newOrder.map((a) => a.id),
+      tripId: trip?.id || "",
+    });
   };
 
   const EmptyIcon = timeBlockEmptyIcons[timeBlock.type];

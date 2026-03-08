@@ -1,6 +1,7 @@
 "use client";
 
 import { useTripDataStore } from "@/store/trip-data-store";
+import { useUpdateDayStatus } from "@/hooks/use-trip-mutations";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,8 +49,9 @@ export function DayCard({
   onToggle,
   isCompact = false,
 }: DayCardProps) {
-  const { getCity, getActivitiesForTimeBlock, getLodging, updateDayStatus } =
+  const { getCity, getActivitiesForTimeBlock, getLodging } =
     useTripDataStore();
+  const updateDayStatusMutation = useUpdateDayStatus();
 
   const city = getCity(day.cityId);
   const lodging = day.lodgingId ? getLodging(day.lodgingId) : undefined;
@@ -173,7 +175,11 @@ export function DayCard({
             className="h-8 w-8"
             onClick={(e) => {
               e.stopPropagation();
-              updateDayStatus(day.id, isLocked ? "planned" : "locked");
+              updateDayStatusMutation.mutate({
+                dayId: day.id,
+                status: isLocked ? "planned" : "locked",
+                tripId: day.tripId,
+              });
             }}
           >
             {isLocked ? (
