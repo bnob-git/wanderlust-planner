@@ -1,188 +1,388 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useTripDataStore } from "@/store/trip-data-store";
+import { createClient } from "@/lib/supabase/client";
+import {
+  dbTripToTrip,
+  dbTravelerToTraveler,
+  dbCityToCity,
+  dbDayToDay,
+  dbActivityToActivity,
+  dbLodgingToLodging,
+  dbTransportToTransport,
+  dbReservationToReservation,
+  dbBudgetItemToBudgetItem,
+  dbPartyToParty,
+  dbActionItemToActionItem,
+} from "@/lib/supabase/types";
+import type {
+  DbTrip,
+  DbTraveler,
+  DbCity,
+  DbDay,
+  DbActivity,
+  DbLodging,
+  DbTransport,
+  DbReservation,
+  DbBudgetItem,
+  DbParty,
+  DbActionItem,
+} from "@/lib/supabase/types";
 
-const hasSupabase =
+export const hasSupabase =
   typeof window !== "undefined" &&
   !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
   !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export function useTripQuery() {
-  const trip = useTripDataStore((s) => s.trip);
-
-  return useQuery({
-    queryKey: ["trip"],
-    queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase when env vars are configured
-        // const supabase = createClient();
-        // const { data } = await supabase.from("trips").select("*").single();
-        // return data;
-      }
-      return trip;
-    },
-    initialData: trip,
-    enabled: hasSupabase,
-  });
+function getSupabase() {
+  return createClient();
 }
 
-export function useDaysQuery() {
-  const days = useTripDataStore((s) => s.days);
+export function useTripQuery(tripId?: string) {
+  const storeTrip = useTripDataStore((s) => s.trip);
+  const setTrip = useTripDataStore((s) => s.setTrip);
 
-  return useQuery({
-    queryKey: ["days"],
+  const query = useQuery({
+    queryKey: ["trip", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
+      const supabase = getSupabase();
+      let tripQuery = supabase.from("trips").select("*");
+      if (tripId) {
+        tripQuery = tripQuery.eq("id", tripId);
       }
-      return days;
+      const { data: tripRow, error } = await tripQuery.limit(1).single();
+      if (error) throw error;
+      if (!tripRow) return null;
+
+      const dbTrip = tripRow as unknown as DbTrip;
+      const { data: travelerRows } = await supabase
+        .from("travelers").select("id").eq("trip_id", dbTrip.id);
+      const travelerIds = (travelerRows || []).map((t: { id: string }) => t.id);
+      const { data: cityRows } = await supabase
+        .from("cities").select("id").eq("trip_id", dbTrip.id).order("sort_order");
+      const cityIds = (cityRows || []).map((c: { id: string }) => c.id);
+
+      return dbTripToTrip(dbTrip, travelerIds, cityIds);
     },
-    initialData: days,
     enabled: hasSupabase,
+    staleTime: 30000,
   });
+
+  useEffect(() => {
+    if (query.data) { setTrip(query.data); }
+  }, [query.data, setTrip]);
+
+  return { ...query, data: query.data ?? storeTrip };
 }
 
-export function useActivitiesQuery() {
-  const activities = useTripDataStore((s) => s.activities);
+export function useDaysQuery(tripId?: string) {
+  const storeDays = useTripDataStore((s) => s.days);
+  const setDays = useTripDataStore((s) => s.setDays);
 
-  return useQuery({
-    queryKey: ["activities"],
+  const query = useQuery({
+    queryKey: ["days", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
-      }
-      return activities;
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("days").select("*, time_blocks(*)").eq("trip_id", tripId).order("day_number");
+      if (error) throw error;
+      return (data || []).map((row: unknown) => dbDayToDay(row as DbDay));
     },
-    initialData: activities,
-    enabled: hasSupabase,
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
   });
+
+  useEffect(() => {
+    if (query.data && query.data.length > 0) { setDays(query.data); }
+  }, [query.data, setDays]);
+
+  return { ...query, data: query.data ?? storeDays };
 }
 
-export function useCitiesQuery() {
-  const cities = useTripDataStore((s) => s.cities);
+export function useActivitiesQuery(tripId?: string) {
+  const storeActivities = useTripDataStore((s) => s.activities);
+  const setActivities = useTripDataStore((s) => s.setActivities);
 
-  return useQuery({
-    queryKey: ["cities"],
+  const query = useQuery({
+    queryKey: ["activities", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
-      }
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("activities").select("*").eq("trip_id", tripId).order("sort_order");
+      if (error) throw error;
+      return (data || []).map((row: unknown) => dbActivityToActivity(row as DbActivity));
+    },
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
+  });
+
+  useEffect(() => {
+    if (query.data && query.data.length > 0) { setActivities(query.data); }
+  }, [query.data, setActivities]);
+
+  return { ...query, data: query.data ?? storeActivities };
+}
+
+export function useCitiesQuery(tripId?: string) {
+  const storeCities = useTripDataStore((s) => s.cities);
+  const setCities = useTripDataStore((s) => s.setCities);
+
+  const query = useQuery({
+    queryKey: ["cities", tripId],
+    queryFn: async () => {
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("cities").select("*").eq("trip_id", tripId).order("sort_order");
+      if (error) throw error;
+
+      const cities = await Promise.all(
+        (data || []).map(async (row: unknown) => {
+          const dbCity = row as DbCity;
+          const { data: dayRows } = await supabase
+            .from("days").select("id").eq("city_id", dbCity.id).order("day_number");
+          const dayIds = (dayRows || []).map((d: { id: string }) => d.id);
+          const { data: neighborhoodRows } = await supabase
+            .from("neighborhoods").select("id").eq("city_id", dbCity.id);
+          const neighborhoodIds = (neighborhoodRows || []).map((n: { id: string }) => n.id);
+          return dbCityToCity(dbCity, dayIds, neighborhoodIds);
+        })
+      );
       return cities;
     },
-    initialData: cities,
-    enabled: hasSupabase,
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
   });
+
+  useEffect(() => {
+    if (query.data && query.data.length > 0) { setCities(query.data); }
+  }, [query.data, setCities]);
+
+  return { ...query, data: query.data ?? storeCities };
 }
 
-export function useTravelersQuery() {
-  const travelers = useTripDataStore((s) => s.travelers);
+export function useTravelersQuery(tripId?: string) {
+  const storeTravelers = useTripDataStore((s) => s.travelers);
+  const setTravelers = useTripDataStore((s) => s.setTravelers);
 
-  return useQuery({
-    queryKey: ["travelers"],
+  const query = useQuery({
+    queryKey: ["travelers", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("travelers").select("*").eq("trip_id", tripId);
+      if (error) throw error;
+
+      const partyMemberships: Record<string, string> = {};
+      try {
+        const { data: partyTravelers } = await supabase
+          .from("party_travelers").select("party_id, traveler_id");
+        if (partyTravelers) {
+          for (const pt of partyTravelers) {
+            const ptTyped = pt as { party_id: string; traveler_id: string };
+            partyMemberships[ptTyped.traveler_id] = ptTyped.party_id;
+          }
+        }
+      } catch {
+        // party_travelers table may not exist yet
       }
-      return travelers;
+
+      return (data || []).map((row: unknown) => {
+        const dbTraveler = row as DbTraveler;
+        const partyId = partyMemberships[dbTraveler.id] || "";
+        return dbTravelerToTraveler(dbTraveler, partyId);
+      });
     },
-    initialData: travelers,
-    enabled: hasSupabase,
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
   });
+
+  useEffect(() => {
+    if (query.data && query.data.length > 0) { setTravelers(query.data); }
+  }, [query.data, setTravelers]);
+
+  return { ...query, data: query.data ?? storeTravelers };
 }
 
-export function useLodgingsQuery() {
-  const lodgings = useTripDataStore((s) => s.lodgings);
+export function useLodgingsQuery(tripId?: string) {
+  const storeLodgings = useTripDataStore((s) => s.lodgings);
+  const setLodgings = useTripDataStore((s) => s.setLodgings);
 
-  return useQuery({
-    queryKey: ["lodgings"],
+  const query = useQuery({
+    queryKey: ["lodgings", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
-      }
-      return lodgings;
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("lodgings").select("*").eq("trip_id", tripId);
+      if (error) throw error;
+      return (data || []).map((row: unknown) => dbLodgingToLodging(row as DbLodging));
     },
-    initialData: lodgings,
-    enabled: hasSupabase,
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
   });
+
+  useEffect(() => {
+    if (query.data && query.data.length > 0) { setLodgings(query.data); }
+  }, [query.data, setLodgings]);
+
+  return { ...query, data: query.data ?? storeLodgings };
 }
 
-export function useTransportsQuery() {
-  const transports = useTripDataStore((s) => s.transports);
+export function useTransportsQuery(tripId?: string) {
+  const storeTransports = useTripDataStore((s) => s.transports);
+  const setTransports = useTripDataStore((s) => s.setTransports);
 
-  return useQuery({
-    queryKey: ["transports"],
+  const query = useQuery({
+    queryKey: ["transports", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
-      }
-      return transports;
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("transports").select("*, transport_travelers(traveler_id)")
+        .eq("trip_id", tripId).order("departure_datetime");
+      if (error) throw error;
+      return (data || []).map((row: unknown) => dbTransportToTransport(row as DbTransport));
     },
-    initialData: transports,
-    enabled: hasSupabase,
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
   });
+
+  useEffect(() => {
+    if (query.data && query.data.length > 0) { setTransports(query.data); }
+  }, [query.data, setTransports]);
+
+  return { ...query, data: query.data ?? storeTransports };
 }
 
-export function useBudgetItemsQuery() {
-  const budgetItems = useTripDataStore((s) => s.budgetItems);
+export function useBudgetItemsQuery(tripId?: string) {
+  const storeBudgetItems = useTripDataStore((s) => s.budgetItems);
+  const setBudgetItems = useTripDataStore((s) => s.setBudgetItems);
 
-  return useQuery({
-    queryKey: ["budgetItems"],
+  const query = useQuery({
+    queryKey: ["budgetItems", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
-      }
-      return budgetItems;
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("budget_items").select("*").eq("trip_id", tripId).order("date", { ascending: false });
+      if (error) throw error;
+      return (data || []).map((row: unknown) => dbBudgetItemToBudgetItem(row as DbBudgetItem));
     },
-    initialData: budgetItems,
-    enabled: hasSupabase,
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
   });
+
+  useEffect(() => {
+    if (query.data && query.data.length > 0) { setBudgetItems(query.data); }
+  }, [query.data, setBudgetItems]);
+
+  return { ...query, data: query.data ?? storeBudgetItems };
 }
 
-export function useActionItemsQuery() {
-  const actionItems = useTripDataStore((s) => s.actionItems);
+export function useActionItemsQuery(tripId?: string) {
+  const storeActionItems = useTripDataStore((s) => s.actionItems);
+  const setActionItems = useTripDataStore((s) => s.setActionItems);
 
-  return useQuery({
-    queryKey: ["actionItems"],
+  const query = useQuery({
+    queryKey: ["actionItems", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      try {
+        const { data, error } = await supabase
+          .from("action_items").select("*").eq("trip_id", tripId).order("priority");
+        if (error) throw error;
+        return (data || []).map((row: unknown) => dbActionItemToActionItem(row as DbActionItem));
+      } catch {
+        return [];
       }
-      return actionItems;
     },
-    initialData: actionItems,
-    enabled: hasSupabase,
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
   });
+
+  useEffect(() => {
+    if (query.data) { setActionItems(query.data); }
+  }, [query.data, setActionItems]);
+
+  return { ...query, data: query.data ?? storeActionItems };
 }
 
-export function usePartiesQuery() {
-  const parties = useTripDataStore((s) => s.parties);
+export function usePartiesQuery(tripId?: string) {
+  const storeParties = useTripDataStore((s) => s.parties);
+  const setParties = useTripDataStore((s) => s.setParties);
 
-  return useQuery({
-    queryKey: ["parties"],
+  const query = useQuery({
+    queryKey: ["parties", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      try {
+        const { data, error } = await supabase
+          .from("parties").select("*, party_travelers(traveler_id), party_cities(city_id)")
+          .eq("trip_id", tripId);
+        if (error) throw error;
+        return (data || []).map((row: unknown) => dbPartyToParty(row as DbParty));
+      } catch {
+        return [];
       }
-      return parties;
     },
-    initialData: parties,
-    enabled: hasSupabase,
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
   });
+
+  useEffect(() => {
+    if (query.data) { setParties(query.data); }
+  }, [query.data, setParties]);
+
+  return { ...query, data: query.data ?? storeParties };
 }
 
-export function useReservationsQuery() {
-  const reservations = useTripDataStore((s) => s.reservations);
+export function useReservationsQuery(tripId?: string) {
+  const storeReservations = useTripDataStore((s) => s.reservations);
+  const setReservations = useTripDataStore((s) => s.setReservations);
 
-  return useQuery({
-    queryKey: ["reservations"],
+  const query = useQuery({
+    queryKey: ["reservations", tripId],
     queryFn: async () => {
-      if (hasSupabase) {
-        // TODO: Fetch from Supabase
-      }
-      return reservations;
+      if (!tripId) return [];
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("reservations").select("*").eq("trip_id", tripId).order("datetime");
+      if (error) throw error;
+      return (data || []).map((row: unknown) => dbReservationToReservation(row as DbReservation));
     },
-    initialData: reservations,
+    enabled: hasSupabase && !!tripId,
+    staleTime: 30000,
+  });
+
+  useEffect(() => {
+    if (query.data && query.data.length > 0) { setReservations(query.data); }
+  }, [query.data, setReservations]);
+
+  return { ...query, data: query.data ?? storeReservations };
+}
+
+export function useTripsListQuery() {
+  return useQuery({
+    queryKey: ["trips-list"],
+    queryFn: async () => {
+      const supabase = getSupabase();
+      const { data, error } = await supabase
+        .from("trips").select("*").order("start_date", { ascending: false });
+      if (error) throw error;
+      return (data || []).map((row: unknown) => {
+        const dbTrip = row as DbTrip;
+        return dbTripToTrip(dbTrip, [], []);
+      });
+    },
     enabled: hasSupabase,
+    staleTime: 30000,
   });
 }
