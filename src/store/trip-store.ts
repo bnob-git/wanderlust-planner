@@ -11,7 +11,10 @@ import type {
   Reservation,
   BudgetItem,
   ActionItem,
+  BaseEntity,
 } from "@/types";
+
+type OmitBase<T extends BaseEntity> = Omit<T, keyof BaseEntity>;
 import {
   trip as tripData,
   travelers as travelersData,
@@ -61,24 +64,24 @@ interface TripStore {
   updateDayStatus: (dayId: string, status: Day["status"]) => void;
   reorderActivities: (timeBlockId: string, activityIds: string[]) => void;
 
-  addParty: (party: Omit<Party, "id">) => void;
+  addParty: (party: OmitBase<Party>) => void;
   updateParty: (partyId: string, updates: Partial<Party>) => void;
   deleteParty: (partyId: string) => void;
 
-  addActivity: (activity: Omit<Activity, "id">) => void;
+  addActivity: (activity: OmitBase<Activity>) => void;
   updateActivity: (activityId: string, updates: Partial<Activity>) => void;
   deleteActivity: (activityId: string) => void;
 
-  addBudgetItem: (item: Omit<BudgetItem, "id">) => void;
+  addBudgetItem: (item: OmitBase<BudgetItem>) => void;
   updateBudgetItem: (itemId: string, updates: Partial<BudgetItem>) => void;
   deleteBudgetItem: (itemId: string) => void;
 
-  addActionItem: (item: Omit<ActionItem, "id">) => void;
+  addActionItem: (item: OmitBase<ActionItem>) => void;
   updateActionItem: (itemId: string, updates: Partial<ActionItem>) => void;
   deleteActionItem: (itemId: string) => void;
   completeActionItem: (itemId: string) => void;
 
-  addTraveler: (traveler: Omit<Traveler, "id">) => void;
+  addTraveler: (traveler: OmitBase<Traveler>) => void;
   updateTraveler: (travelerId: string, updates: Partial<Traveler>) => void;
 
   getTripSummary: () => {
@@ -166,7 +169,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addParty: (party) =>
     set((state) => ({
-      parties: [...state.parties, { ...party, id: `party_${crypto.randomUUID()}` }],
+      parties: [...state.parties, { ...party, id: `party_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateParty: (partyId, updates) =>
@@ -183,7 +186,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addActivity: (activity) =>
     set((state) => ({
-      activities: [...state.activities, { ...activity, id: `activity_${crypto.randomUUID()}` }],
+      activities: [...state.activities, { ...activity, id: `activity_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateActivity: (activityId, updates) =>
@@ -200,7 +203,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addBudgetItem: (item) =>
     set((state) => ({
-      budgetItems: [...state.budgetItems, { ...item, id: `budget_${crypto.randomUUID()}` }],
+      budgetItems: [...state.budgetItems, { ...item, id: `budget_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateBudgetItem: (itemId, updates) =>
@@ -217,7 +220,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addActionItem: (item) =>
     set((state) => ({
-      actionItems: [...state.actionItems, { ...item, id: `action_${crypto.randomUUID()}` }],
+      actionItems: [...state.actionItems, { ...item, id: `action_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateActionItem: (itemId, updates) =>
@@ -243,7 +246,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addTraveler: (traveler) =>
     set((state) => ({
-      travelers: [...state.travelers, { ...traveler, id: `traveler_${crypto.randomUUID()}` }],
+      travelers: [...state.travelers, { ...traveler, id: `traveler_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateTraveler: (travelerId, updates) =>
