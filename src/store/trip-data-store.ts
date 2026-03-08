@@ -13,8 +13,6 @@ import type {
   ActionItem,
   BaseEntity,
 } from "@/types";
-
-type OmitBase<T extends BaseEntity> = Omit<T, keyof BaseEntity>;
 import {
   trip as tripData,
   travelers as travelersData,
@@ -29,7 +27,9 @@ import {
   actionItems as actionItemsData,
 } from "@/data/trip-data";
 
-interface TripStore {
+type OmitBase<T extends BaseEntity> = Omit<T, keyof BaseEntity>;
+
+interface TripDataStore {
   trip: Trip | null;
   travelers: Traveler[];
   parties: Party[];
@@ -41,12 +41,6 @@ interface TripStore {
   reservations: Reservation[];
   budgetItems: BudgetItem[];
   actionItems: ActionItem[];
-
-  selectedDayId: string | null;
-  selectedPartyId: string | null;
-
-  setSelectedDay: (dayId: string | null) => void;
-  setSelectedParty: (partyId: string | null) => void;
 
   getCity: (cityId: string) => City | undefined;
   getParty: (partyId: string) => Party | undefined;
@@ -101,7 +95,7 @@ interface TripStore {
   };
 }
 
-export const useTripStore = create<TripStore>((set, get) => ({
+export const useTripDataStore = create<TripDataStore>((set, get) => ({
   trip: tripData,
   travelers: travelersData,
   parties: partiesData,
@@ -113,12 +107,6 @@ export const useTripStore = create<TripStore>((set, get) => ({
   reservations: reservationsData,
   budgetItems: budgetItemsData,
   actionItems: actionItemsData,
-
-  selectedDayId: null,
-  selectedPartyId: null,
-
-  setSelectedDay: (dayId) => set({ selectedDayId: dayId }),
-  setSelectedParty: (partyId) => set({ selectedPartyId: partyId }),
 
   getCity: (cityId) => get().cities.find((c) => c.id === cityId),
   getParty: (partyId) => get().parties.find((p) => p.id === partyId),

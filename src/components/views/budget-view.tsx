@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,7 @@ const categoryColors: Record<BudgetCategory, string> = {
 };
 
 function CategoryBreakdown() {
-  const { trip, budgetItems } = useTripStore();
+  const { trip, budgetItems } = useTripDataStore();
 
   if (!trip) return null;
 
@@ -127,7 +127,7 @@ function CategoryBreakdown() {
 }
 
 function ExpenseList({ onAddExpense }: { onAddExpense: () => void }) {
-  const { budgetItems, getTraveler, days, getDay } = useTripStore();
+  const { budgetItems, getTraveler, days, getDay } = useTripDataStore();
 
   const sortedItems = [...budgetItems]
     .filter((item) => !item.isEstimate)
@@ -213,7 +213,7 @@ function ExpenseList({ onAddExpense }: { onAddExpense: () => void }) {
 }
 
 function SplitSummary() {
-  const { travelers, budgetItems } = useTripStore();
+  const { travelers, budgetItems } = useTripDataStore();
 
   const paidByTraveler = travelers.reduce(
     (acc, traveler) => {
@@ -325,7 +325,7 @@ function SplitSummary() {
 }
 
 function DailyBurnRate() {
-  const { trip, days, budgetItems } = useTripStore();
+  const { trip, days, budgetItems } = useTripDataStore();
 
   if (!trip) return null;
 
@@ -411,7 +411,7 @@ function DailyBurnRate() {
 }
 
 export function BudgetView() {
-  const { trip, travelers, getTripSummary, addBudgetItem } = useTripStore();
+  const { trip, travelers, getTripSummary, addBudgetItem } = useTripDataStore();
   const summary = getTripSummary();
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [expenseDescription, setExpenseDescription] = useState("");

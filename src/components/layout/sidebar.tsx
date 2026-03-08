@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -34,7 +34,7 @@ const navItems = [
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const { trip } = useTripStore();
+  const { trip } = useTripDataStore();
   const pathname = usePathname();
 
   return (

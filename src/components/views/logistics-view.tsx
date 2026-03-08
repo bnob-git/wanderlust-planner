@@ -1,6 +1,6 @@
 "use client";
 
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 function TransportCard({ transport }: { transport: Transport }) {
-  const { travelers, getTraveler } = useTripStore();
+  const { travelers, getTraveler } = useTripDataStore();
 
   const getIcon = () => {
     switch (transport.type) {
@@ -513,7 +513,7 @@ function ReservationCard({ reservation }: { reservation: Reservation }) {
 }
 
 export function LogisticsView() {
-  const { transports, lodgings, reservations } = useTripStore();
+  const { transports, lodgings, reservations } = useTripDataStore();
 
   const flights = transports.filter((t) => t.type === "flight");
   const trains = transports.filter((t) => t.type === "train");

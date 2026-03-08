@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/status-pill";
@@ -61,7 +61,7 @@ interface DayCardProps {
 
 function DayCard({ day, isExpanded, onToggle }: DayCardProps) {
   const { getCity, getActivitiesForTimeBlock, getLodging, updateDayStatus } =
-    useTripStore();
+    useTripDataStore();
 
   const city = getCity(day.cityId);
   const lodging = day.lodgingId ? getLodging(day.lodgingId) : undefined;
@@ -202,7 +202,7 @@ interface TimeBlockSectionProps {
 }
 
 function TimeBlockSection({ timeBlock, dayId, isLocked }: TimeBlockSectionProps) {
-  const { getActivitiesForTimeBlock, addActivity, trip } = useTripStore();
+  const { getActivitiesForTimeBlock, addActivity, trip } = useTripDataStore();
   const activities = getActivitiesForTimeBlock(timeBlock.id);
   const Icon = timeBlockIcons[timeBlock.type];
   const [isAddActivityOpen, setIsAddActivityOpen] = useState(false);
@@ -350,7 +350,7 @@ interface ActivityCardProps {
 }
 
 function ActivityCard({ activity, showTransit, isLocked }: ActivityCardProps) {
-  const { getReservation } = useTripStore();
+  const { getReservation } = useTripDataStore();
   const reservation = activity.reservationId
     ? getReservation(activity.reservationId)
     : undefined;
@@ -514,7 +514,7 @@ function ActivityCard({ activity, showTransit, isLocked }: ActivityCardProps) {
 }
 
 export function ItineraryView() {
-  const { days, cities } = useTripStore();
+  const { days, cities } = useTripDataStore();
   const [expandedDays, setExpandedDays] = useState<Set<string>>(
     new Set([days[0]?.id])
   );

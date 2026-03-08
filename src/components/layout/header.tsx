@@ -1,12 +1,12 @@
 "use client";
 
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, Search, Share2 } from "lucide-react";
 
 export function Header() {
-  const { trip, travelers, actionItems } = useTripStore();
+  const { trip, travelers, actionItems } = useTripDataStore();
   const pendingActions = actionItems.filter((a) => a.priority === "high").length;
 
   return (

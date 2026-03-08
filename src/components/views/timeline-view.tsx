@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
+import { useUiStore } from "@/store/ui-store";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,8 +51,9 @@ function getThemeEmoji(theme?: string): string {
 }
 
 export function TimelineView() {
-  const { trip, cities, days, lodgings, transports, setSelectedDay } =
-    useTripStore();
+  const { trip, cities, days, lodgings, transports } =
+    useTripDataStore();
+  const { setSelectedDay } = useUiStore();
   const router = useRouter();
   const [zoomLevel, setZoomLevel] = useState(1);
 

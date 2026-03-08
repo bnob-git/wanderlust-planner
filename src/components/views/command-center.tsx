@@ -1,6 +1,6 @@
 "use client";
 
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -29,7 +29,7 @@ export function CommandCenter() {
     actionItems,
     getTripSummary,
     completeActionItem,
-  } = useTripStore();
+  } = useTripDataStore();
   const router = useRouter();
 
   const summary = getTripSummary();

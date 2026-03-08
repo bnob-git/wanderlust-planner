@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ const partyColors: Record<string, { bg: string; text: string; border: string }> 
 };
 
 export function PartiesView() {
-  const { parties, travelers, cities, trip, addParty, deleteParty } = useTripStore();
+  const { parties, travelers, cities, trip, addParty, deleteParty } = useTripDataStore();
   const router = useRouter();
   const [isAddPartyOpen, setIsAddPartyOpen] = useState(false);
   const [newPartyName, setNewPartyName] = useState("");
