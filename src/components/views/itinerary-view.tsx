@@ -28,7 +28,7 @@ const cityDotColors = [
 ];
 
 export function ItineraryView() {
-  const { days, cities, getActivitiesForTimeBlock } =
+  const { days, cities, activities, getActivitiesForTimeBlock } =
     useTripDataStore();
 
   const [filterCity, setFilterCity] = useState<string>("all");
@@ -86,6 +86,7 @@ export function ItineraryView() {
     return result;
   }, [
     days,
+    activities,
     filterCity,
     filterType,
     filterStatus,
