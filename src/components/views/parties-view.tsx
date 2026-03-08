@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTripStore } from "@/store/trip-store";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +40,8 @@ const partyColors: Record<string, { bg: string; text: string; border: string }> 
 };
 
 export function PartiesView() {
-  const { parties, travelers, cities, trip, setActiveView, addParty, deleteParty } = useTripStore();
+  const { parties, travelers, cities, trip, addParty, deleteParty } = useTripStore();
+  const router = useRouter();
   const [isAddPartyOpen, setIsAddPartyOpen] = useState(false);
   const [newPartyName, setNewPartyName] = useState("");
   const [newPartyStartDate, setNewPartyStartDate] = useState("");
@@ -242,7 +244,7 @@ export function PartiesView() {
                       variant="ghost"
                       size="sm"
                       className="flex-1 justify-between"
-                      onClick={() => setActiveView("itinerary")}
+                      onClick={() => router.push("/itinerary")}
                     >
                       View Their Itinerary
                       <ChevronRight className="h-4 w-4" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTripStore } from "@/store/trip-store";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -27,9 +28,9 @@ export function CommandCenter() {
     lodgings,
     actionItems,
     getTripSummary,
-    setActiveView,
     completeActionItem,
   } = useTripStore();
+  const router = useRouter();
 
   const summary = getTripSummary();
 
@@ -74,7 +75,7 @@ export function CommandCenter() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setActiveView("timeline")}
+          onClick={() => router.push("/timeline")}
         >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -89,7 +90,7 @@ export function CommandCenter() {
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setActiveView("itinerary")}
+          onClick={() => router.push("/itinerary")}
         >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -107,12 +108,12 @@ export function CommandCenter() {
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setActiveView("budget")}
-        >
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Budget</p>
+                  onClick={() => router.push("/budget")}
+                >
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Budget</p>
                 <p className="text-3xl font-bold">
                   {formatCurrency(
                     summary.budgetStats.actual,
@@ -279,7 +280,7 @@ export function CommandCenter() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setActiveView("logistics")}
+                onClick={() => router.push("/logistics")}
               >
                 View All
                 <ChevronRight className="h-4 w-4 ml-1" />
@@ -342,9 +343,9 @@ export function CommandCenter() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setActiveView("budget")}
-            >
-              Details
+                          onClick={() => router.push("/budget")}
+                        >
+                          Details
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>

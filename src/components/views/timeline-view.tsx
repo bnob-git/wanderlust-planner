@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTripStore } from "@/store/trip-store";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDate, calculateDaysBetween } from "@/lib/utils";
@@ -49,8 +50,9 @@ function getThemeEmoji(theme?: string): string {
 }
 
 export function TimelineView() {
-  const { trip, cities, days, lodgings, transports, setActiveView, setSelectedDay } =
+  const { trip, cities, days, lodgings, transports, setSelectedDay } =
     useTripStore();
+  const router = useRouter();
   const [zoomLevel, setZoomLevel] = useState(1);
 
   if (!trip) {
@@ -255,7 +257,7 @@ export function TimelineView() {
                       )}
                       onClick={() => {
                         setSelectedDay(day.id);
-                        setActiveView("itinerary");
+                        router.push("/itinerary");
                       }}
                       title={day.theme || `Day ${day.dayNumber}`}
                     >

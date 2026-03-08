@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { useTripStore } from "@/store/trip-store";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Calendar,
@@ -18,20 +20,22 @@ import { useState } from "react";
 
 const navItems = [
   {
-    id: "command-center" as const,
+    id: "command-center",
     label: "Command Center",
     icon: LayoutDashboard,
+    href: "/command-center",
   },
-  { id: "timeline" as const, label: "Timeline", icon: Calendar },
-  { id: "itinerary" as const, label: "Day-by-Day", icon: ListTodo },
-  { id: "parties" as const, label: "Parties", icon: Users },
-  { id: "logistics" as const, label: "Logistics", icon: Plane },
-  { id: "budget" as const, label: "Budget", icon: Wallet },
+  { id: "timeline", label: "Timeline", icon: Calendar, href: "/timeline" },
+  { id: "itinerary", label: "Day-by-Day", icon: ListTodo, href: "/itinerary" },
+  { id: "parties", label: "Parties", icon: Users, href: "/parties" },
+  { id: "logistics", label: "Logistics", icon: Plane, href: "/logistics" },
+  { id: "budget", label: "Budget", icon: Wallet, href: "/budget" },
 ];
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const { activeView, setActiveView, trip } = useTripStore();
+  const { trip } = useTripStore();
+  const pathname = usePathname();
 
   return (
     <aside
@@ -60,20 +64,23 @@ export function Sidebar() {
       )}
 
       <nav className="flex-1 p-2 space-y-1">
-        {navItems.map((item) => (
-          <Button
-            key={item.id}
-            variant={activeView === item.id ? "secondary" : "ghost"}
-            className={cn(
-              "w-full justify-start gap-3",
-              collapsed && "justify-center px-2"
-            )}
-            onClick={() => setActiveView(item.id)}
-          >
-            <item.icon className="h-5 w-5" />
-            {!collapsed && <span>{item.label}</span>}
-          </Button>
-        ))}
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link key={item.id} href={item.href}>
+              <Button
+                variant={isActive ? "secondary" : "ghost"}
+                className={cn(
+                  "w-full justify-start gap-3",
+                  collapsed && "justify-center px-2"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {!collapsed && <span>{item.label}</span>}
+              </Button>
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="border-t p-2">

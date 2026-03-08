@@ -44,9 +44,7 @@ interface TripStore {
 
   selectedDayId: string | null;
   selectedPartyId: string | null;
-  activeView: "command-center" | "timeline" | "itinerary" | "logistics" | "budget" | "parties";
 
-  setActiveView: (view: TripStore["activeView"]) => void;
   setSelectedDay: (dayId: string | null) => void;
   setSelectedParty: (partyId: string | null) => void;
 
@@ -118,9 +116,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   selectedDayId: null,
   selectedPartyId: null,
-  activeView: "command-center",
 
-  setActiveView: (view) => set({ activeView: view }),
   setSelectedDay: (dayId) => set({ selectedDayId: dayId }),
   setSelectedParty: (partyId) => set({ selectedPartyId: partyId }),
 
