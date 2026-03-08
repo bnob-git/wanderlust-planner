@@ -11,6 +11,7 @@ import type {
   Reservation,
   BudgetItem,
   ActionItem,
+  BaseEntity,
 } from "@/types";
 import {
   trip as tripData,
@@ -26,7 +27,9 @@ import {
   actionItems as actionItemsData,
 } from "@/data/trip-data";
 
-interface TripStore {
+type OmitBase<T extends BaseEntity> = Omit<T, keyof BaseEntity>;
+
+interface TripDataStore {
   trip: Trip | null;
   travelers: Traveler[];
   parties: Party[];
@@ -38,14 +41,6 @@ interface TripStore {
   reservations: Reservation[];
   budgetItems: BudgetItem[];
   actionItems: ActionItem[];
-
-  selectedDayId: string | null;
-  selectedPartyId: string | null;
-  activeView: "command-center" | "timeline" | "itinerary" | "logistics" | "budget" | "parties";
-
-  setActiveView: (view: TripStore["activeView"]) => void;
-  setSelectedDay: (dayId: string | null) => void;
-  setSelectedParty: (partyId: string | null) => void;
 
   getCity: (cityId: string) => City | undefined;
   getParty: (partyId: string) => Party | undefined;
@@ -61,24 +56,24 @@ interface TripStore {
   updateDayStatus: (dayId: string, status: Day["status"]) => void;
   reorderActivities: (timeBlockId: string, activityIds: string[]) => void;
 
-  addParty: (party: Omit<Party, "id">) => void;
+  addParty: (party: OmitBase<Party>) => void;
   updateParty: (partyId: string, updates: Partial<Party>) => void;
   deleteParty: (partyId: string) => void;
 
-  addActivity: (activity: Omit<Activity, "id">) => void;
+  addActivity: (activity: OmitBase<Activity>) => void;
   updateActivity: (activityId: string, updates: Partial<Activity>) => void;
   deleteActivity: (activityId: string) => void;
 
-  addBudgetItem: (item: Omit<BudgetItem, "id">) => void;
+  addBudgetItem: (item: OmitBase<BudgetItem>) => void;
   updateBudgetItem: (itemId: string, updates: Partial<BudgetItem>) => void;
   deleteBudgetItem: (itemId: string) => void;
 
-  addActionItem: (item: Omit<ActionItem, "id">) => void;
+  addActionItem: (item: OmitBase<ActionItem>) => void;
   updateActionItem: (itemId: string, updates: Partial<ActionItem>) => void;
   deleteActionItem: (itemId: string) => void;
   completeActionItem: (itemId: string) => void;
 
-  addTraveler: (traveler: Omit<Traveler, "id">) => void;
+  addTraveler: (traveler: OmitBase<Traveler>) => void;
   updateTraveler: (travelerId: string, updates: Partial<Traveler>) => void;
 
   getTripSummary: () => {
@@ -100,7 +95,7 @@ interface TripStore {
   };
 }
 
-export const useTripStore = create<TripStore>((set, get) => ({
+export const useTripDataStore = create<TripDataStore>((set, get) => ({
   trip: tripData,
   travelers: travelersData,
   parties: partiesData,
@@ -112,14 +107,6 @@ export const useTripStore = create<TripStore>((set, get) => ({
   reservations: reservationsData,
   budgetItems: budgetItemsData,
   actionItems: actionItemsData,
-
-  selectedDayId: null,
-  selectedPartyId: null,
-  activeView: "command-center",
-
-  setActiveView: (view) => set({ activeView: view }),
-  setSelectedDay: (dayId) => set({ selectedDayId: dayId }),
-  setSelectedParty: (partyId) => set({ selectedPartyId: partyId }),
 
   getCity: (cityId) => get().cities.find((c) => c.id === cityId),
   getParty: (partyId) => get().parties.find((p) => p.id === partyId),
@@ -166,7 +153,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addParty: (party) =>
     set((state) => ({
-      parties: [...state.parties, { ...party, id: `party_${Date.now()}` }],
+      parties: [...state.parties, { ...party, id: `party_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateParty: (partyId, updates) =>
@@ -183,7 +170,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addActivity: (activity) =>
     set((state) => ({
-      activities: [...state.activities, { ...activity, id: `activity_${Date.now()}` }],
+      activities: [...state.activities, { ...activity, id: `activity_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateActivity: (activityId, updates) =>
@@ -200,7 +187,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addBudgetItem: (item) =>
     set((state) => ({
-      budgetItems: [...state.budgetItems, { ...item, id: `budget_${Date.now()}` }],
+      budgetItems: [...state.budgetItems, { ...item, id: `budget_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateBudgetItem: (itemId, updates) =>
@@ -217,7 +204,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addActionItem: (item) =>
     set((state) => ({
-      actionItems: [...state.actionItems, { ...item, id: `action_${Date.now()}` }],
+      actionItems: [...state.actionItems, { ...item, id: `action_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateActionItem: (itemId, updates) =>
@@ -234,12 +221,16 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   completeActionItem: (itemId) =>
     set((state) => ({
-      actionItems: state.actionItems.filter((a) => a.id !== itemId),
+      actionItems: state.actionItems.map((a) =>
+        a.id === itemId
+          ? { ...a, status: "completed" as const, completedAt: new Date().toISOString() }
+          : a
+      ),
     })),
 
   addTraveler: (traveler) =>
     set((state) => ({
-      travelers: [...state.travelers, { ...traveler, id: `traveler_${Date.now()}` }],
+      travelers: [...state.travelers, { ...traveler, id: `traveler_${crypto.randomUUID()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), createdBy: "traveler_you" }],
     })),
 
   updateTraveler: (travelerId, updates) =>

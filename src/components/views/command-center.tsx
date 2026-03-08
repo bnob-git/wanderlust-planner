@@ -1,6 +1,7 @@
 "use client";
 
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -27,9 +28,9 @@ export function CommandCenter() {
     lodgings,
     actionItems,
     getTripSummary,
-    setActiveView,
     completeActionItem,
-  } = useTripStore();
+  } = useTripDataStore();
+  const router = useRouter();
 
   const summary = getTripSummary();
 
@@ -41,8 +42,9 @@ export function CommandCenter() {
     );
   }
 
-  const highPriorityActions = actionItems.filter((a) => a.priority === "high");
-  const otherActions = actionItems.filter((a) => a.priority !== "high");
+  const pendingItems = actionItems.filter((a) => a.status !== "completed");
+  const highPriorityActions = pendingItems.filter((a) => a.priority === "high");
+  const otherActions = pendingItems.filter((a) => a.priority !== "high");
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -74,7 +76,7 @@ export function CommandCenter() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setActiveView("timeline")}
+          onClick={() => router.push("/timeline")}
         >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -89,7 +91,7 @@ export function CommandCenter() {
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setActiveView("itinerary")}
+          onClick={() => router.push("/itinerary")}
         >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -107,12 +109,12 @@ export function CommandCenter() {
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => setActiveView("budget")}
-        >
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Budget</p>
+                  onClick={() => router.push("/budget")}
+                >
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Budget</p>
                 <p className="text-3xl font-bold">
                   {formatCurrency(
                     summary.budgetStats.actual,
@@ -133,7 +135,7 @@ export function CommandCenter() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Action Items</p>
-                <p className="text-3xl font-bold">{actionItems.length}</p>
+                <p className="text-3xl font-bold">{pendingItems.length}</p>
                 <p className="text-xs text-red-500">
                   {highPriorityActions.length} urgent
                 </p>
@@ -210,7 +212,7 @@ export function CommandCenter() {
                 Action Required
               </CardTitle>
               <span className="text-sm text-muted-foreground">
-                {actionItems.length} items
+                {pendingItems.length} items
               </span>
             </div>
           </CardHeader>
@@ -261,7 +263,7 @@ export function CommandCenter() {
               </div>
             ))}
 
-            {actionItems.length === 0 && (
+            {pendingItems.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">
                 No pending actions
               </p>
@@ -279,7 +281,7 @@ export function CommandCenter() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setActiveView("logistics")}
+                onClick={() => router.push("/logistics")}
               >
                 View All
                 <ChevronRight className="h-4 w-4 ml-1" />
@@ -342,9 +344,9 @@ export function CommandCenter() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setActiveView("budget")}
-            >
-              Details
+                          onClick={() => router.push("/budget")}
+                        >
+                          Details
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>

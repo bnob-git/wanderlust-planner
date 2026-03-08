@@ -14,6 +14,9 @@ import type {
 
 export const trip: Trip = {
   id: "trip_spain_uk_2026",
+  createdAt: "2026-01-15T10:00:00Z",
+  updatedAt: "2026-01-15T10:00:00Z",
+  createdBy: "traveler_you",
   name: "Spain & UK Summer 2026",
   description: "14-day adventure through Southern Spain, Ibiza, and the English countryside",
   coverImage: "/images/malaga-cover.jpg",
@@ -67,6 +70,9 @@ export const trip: Trip = {
 export const parties: Party[] = [
   {
     id: "party_core",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Us",
     color: "blue",
@@ -77,6 +83,9 @@ export const parties: Party[] = [
   },
   {
     id: "party_friends_spain",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Spain Friends",
     color: "orange",
@@ -87,6 +96,9 @@ export const parties: Party[] = [
   },
   {
     id: "party_ibiza_crew",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Ibiza Crew",
     color: "purple",
@@ -100,6 +112,9 @@ export const parties: Party[] = [
 export const travelers: Traveler[] = [
   {
     id: "traveler_you",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "You",
     email: "you@example.com",
@@ -108,6 +123,9 @@ export const travelers: Traveler[] = [
   },
   {
     id: "traveler_wife",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Wife",
     email: "wife@example.com",
@@ -116,6 +134,9 @@ export const travelers: Traveler[] = [
   },
   {
     id: "traveler_friend1",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Friend 1",
     role: "viewer",
@@ -123,6 +144,9 @@ export const travelers: Traveler[] = [
   },
   {
     id: "traveler_friend2",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Friend 2",
     role: "viewer",
@@ -130,6 +154,9 @@ export const travelers: Traveler[] = [
   },
   {
     id: "traveler_friend3",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Friend 3",
     role: "viewer",
@@ -137,6 +164,9 @@ export const travelers: Traveler[] = [
   },
   {
     id: "traveler_friend4",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Friend 4",
     role: "viewer",
@@ -147,6 +177,9 @@ export const travelers: Traveler[] = [
 export const cities: City[] = [
   {
     id: "city_malaga",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Málaga & Costa del Sol",
     country: "Spain",
@@ -165,6 +198,9 @@ export const cities: City[] = [
   },
   {
     id: "city_ibiza",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Ibiza",
     country: "Spain",
@@ -183,6 +219,9 @@ export const cities: City[] = [
   },
   {
     id: "city_cotswolds",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "Cotswolds",
     country: "United Kingdom",
@@ -201,6 +240,9 @@ export const cities: City[] = [
   },
   {
     id: "city_london",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     name: "London",
     country: "United Kingdom",
@@ -222,6 +264,9 @@ export const cities: City[] = [
 export const days: Day[] = [
   {
     id: "day_01",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_malaga",
     dayNumber: 1,
@@ -239,6 +284,9 @@ export const days: Day[] = [
   },
   {
     id: "day_02",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_malaga",
     dayNumber: 2,
@@ -256,6 +304,9 @@ export const days: Day[] = [
   },
   {
     id: "day_03",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_malaga",
     dayNumber: 3,
@@ -273,6 +324,9 @@ export const days: Day[] = [
   },
   {
     id: "day_04",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_malaga",
     dayNumber: 4,
@@ -290,6 +344,9 @@ export const days: Day[] = [
   },
   {
     id: "day_05",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_malaga",
     dayNumber: 5,
@@ -307,6 +364,9 @@ export const days: Day[] = [
   },
   {
     id: "day_06",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_malaga",
     dayNumber: 6,
@@ -324,6 +384,9 @@ export const days: Day[] = [
   },
   {
     id: "day_07",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_malaga",
     dayNumber: 7,
@@ -341,6 +404,9 @@ export const days: Day[] = [
   },
   {
     id: "day_08",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_ibiza",
     dayNumber: 8,
@@ -358,6 +424,9 @@ export const days: Day[] = [
   },
   {
     id: "day_09",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_ibiza",
     dayNumber: 9,
@@ -375,6 +444,9 @@ export const days: Day[] = [
   },
   {
     id: "day_10",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_ibiza",
     dayNumber: 10,
@@ -392,6 +464,9 @@ export const days: Day[] = [
   },
   {
     id: "day_11",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_ibiza",
     dayNumber: 11,
@@ -409,6 +484,9 @@ export const days: Day[] = [
   },
   {
     id: "day_12",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_cotswolds",
     dayNumber: 12,
@@ -426,6 +504,9 @@ export const days: Day[] = [
   },
   {
     id: "day_13",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_cotswolds",
     dayNumber: 13,
@@ -443,6 +524,9 @@ export const days: Day[] = [
   },
   {
     id: "day_14",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_london",
     dayNumber: 14,
@@ -463,6 +547,9 @@ export const days: Day[] = [
 export const activities: Activity[] = [
   {
     id: "act_01_arrive",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_01",
     timeBlockId: "tb_01_a",
@@ -480,6 +567,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_01_checkin",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_01",
     timeBlockId: "tb_01_a",
@@ -501,6 +591,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_01_dinner",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_01",
     timeBlockId: "tb_01_e",
@@ -519,6 +612,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_02_picasso",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_02",
     timeBlockId: "tb_02_m",
@@ -541,6 +637,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_02_alcazaba",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_02",
     timeBlockId: "tb_02_m",
@@ -563,6 +662,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_02_lunch",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_02",
     timeBlockId: "tb_02_a",
@@ -585,6 +687,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_02_beach",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_02",
     timeBlockId: "tb_02_a",
@@ -602,6 +707,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_02_tapas",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_02",
     timeBlockId: "tb_02_e",
@@ -620,6 +728,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_03_drive_ronda",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_03",
     timeBlockId: "tb_03_m",
@@ -637,6 +748,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_03_puente_nuevo",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_03",
     timeBlockId: "tb_03_m",
@@ -658,6 +772,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_03_lunch_ronda",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_03",
     timeBlockId: "tb_03_a",
@@ -676,6 +793,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_03_explore_ronda",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_03",
     timeBlockId: "tb_03_a",
@@ -694,6 +814,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_03_return",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_03",
     timeBlockId: "tb_03_e",
@@ -711,6 +834,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_06_alhambra",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_06",
     timeBlockId: "tb_06_m",
@@ -734,6 +860,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_09_sunset_ashram",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_09",
     timeBlockId: "tb_09_e",
@@ -756,6 +885,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_10_dalt_vila",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_10",
     timeBlockId: "tb_10_m",
@@ -777,6 +909,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_13_bourton",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_13",
     timeBlockId: "tb_13_m",
@@ -794,6 +929,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_13_bibury",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_13",
     timeBlockId: "tb_13_a",
@@ -811,6 +949,9 @@ export const activities: Activity[] = [
   },
   {
     id: "act_13_cream_tea",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     dayId: "day_13",
     timeBlockId: "tb_13_a",
@@ -832,6 +973,9 @@ export const activities: Activity[] = [
 export const lodgings: Lodging[] = [
   {
     id: "lodging_malaga",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_malaga",
     name: "TBD - Málaga Area",
@@ -851,6 +995,9 @@ export const lodgings: Lodging[] = [
   },
   {
     id: "lodging_ibiza",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_ibiza",
     name: "TBD - Ibiza",
@@ -870,6 +1017,9 @@ export const lodgings: Lodging[] = [
   },
   {
     id: "lodging_cotswolds",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_cotswolds",
     name: "TBD - Cotswolds B&B",
@@ -889,6 +1039,9 @@ export const lodgings: Lodging[] = [
   },
   {
     id: "lodging_london",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     cityId: "city_london",
     name: "TBD - London Airport Hotel",
@@ -911,6 +1064,9 @@ export const lodgings: Lodging[] = [
 export const transports: Transport[] = [
   {
     id: "transport_outbound",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     type: "flight",
     departure: {
@@ -930,6 +1086,9 @@ export const transports: Transport[] = [
   },
   {
     id: "transport_malaga_ibiza",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     type: "flight",
     departure: {
@@ -950,6 +1109,9 @@ export const transports: Transport[] = [
   },
   {
     id: "transport_ibiza_uk",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     type: "flight",
     departure: {
@@ -969,6 +1131,9 @@ export const transports: Transport[] = [
   },
   {
     id: "transport_return",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     type: "flight",
     departure: {
@@ -988,6 +1153,9 @@ export const transports: Transport[] = [
   },
   {
     id: "transport_car_rental",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     type: "car_rental",
     departure: {
@@ -1007,6 +1175,9 @@ export const transports: Transport[] = [
   },
   {
     id: "transport_car_rental_uk",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     type: "car_rental",
     departure: {
@@ -1029,6 +1200,9 @@ export const transports: Transport[] = [
 export const reservations: Reservation[] = [
   {
     id: "res_alhambra",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     activityId: "act_06_alhambra",
     name: "Alhambra Palace Tickets",
@@ -1050,6 +1224,9 @@ export const reservations: Reservation[] = [
 export const budgetItems: BudgetItem[] = [
   {
     id: "budget_flights",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     description: "All flights (estimate)",
     category: "flights",
@@ -1060,6 +1237,9 @@ export const budgetItems: BudgetItem[] = [
   },
   {
     id: "budget_lodging",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     description: "All accommodations (estimate)",
     category: "lodging",
@@ -1070,6 +1250,9 @@ export const budgetItems: BudgetItem[] = [
   },
   {
     id: "budget_car_rentals",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     tripId: "trip_spain_uk_2026",
     description: "Car rentals Spain + UK",
     category: "transport",
@@ -1083,6 +1266,9 @@ export const budgetItems: BudgetItem[] = [
 export const actionItems: ActionItem[] = [
   {
     id: "action_alhambra",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     type: "book",
     title: "Book Alhambra Tickets",
     description: "Nasrid Palaces tickets sell out 2-3 months in advance. Book ASAP!",
@@ -1093,6 +1279,9 @@ export const actionItems: ActionItem[] = [
   },
   {
     id: "action_flights",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     type: "book",
     title: "Book Flights",
     description: "USA → Málaga, Málaga → Ibiza, Ibiza → London, London → USA",
@@ -1102,6 +1291,9 @@ export const actionItems: ActionItem[] = [
   },
   {
     id: "action_malaga_lodging",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     type: "book",
     title: "Book Málaga Accommodation",
     description: "Find villa with pool or nice apartment for 7 nights",
@@ -1112,6 +1304,9 @@ export const actionItems: ActionItem[] = [
   },
   {
     id: "action_ibiza_lodging",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     type: "book",
     title: "Book Ibiza Hotel",
     description: "4 nights in Ibiza Town or Santa Eulalia area",
@@ -1122,6 +1317,9 @@ export const actionItems: ActionItem[] = [
   },
   {
     id: "action_cotswolds_lodging",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     type: "book",
     title: "Book Cotswolds B&B",
     description: "Charming B&B for 2 nights",
@@ -1132,6 +1330,9 @@ export const actionItems: ActionItem[] = [
   },
   {
     id: "action_car_spain",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     type: "book",
     title: "Book Spain Car Rental",
     description: "7 days from Málaga airport",
@@ -1142,6 +1343,9 @@ export const actionItems: ActionItem[] = [
   },
   {
     id: "action_invite_friends",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     type: "decide",
     title: "Confirm Friends for Spain",
     description: "Check if friends can join June 21-26 in Málaga area",
@@ -1152,6 +1356,9 @@ export const actionItems: ActionItem[] = [
   },
   {
     id: "action_invite_ibiza",
+    createdAt: "2026-01-15T10:00:00Z",
+    updatedAt: "2026-01-15T10:00:00Z",
+    createdBy: "traveler_you",
     type: "decide",
     title: "Confirm Ibiza Crew",
     description: "Check if friends can join June 26-30 in Ibiza",

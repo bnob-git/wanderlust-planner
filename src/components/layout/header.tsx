@@ -1,13 +1,13 @@
 "use client";
 
-import { useTripStore } from "@/store/trip-store";
+import { useTripDataStore } from "@/store/trip-data-store";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, Search, Share2 } from "lucide-react";
 
 export function Header() {
-  const { trip, travelers, actionItems } = useTripStore();
-  const pendingActions = actionItems.filter((a) => a.priority === "high").length;
+  const { trip, travelers, actionItems } = useTripDataStore();
+  const pendingActions = actionItems.filter((a) => a.priority === "high" && a.status !== "completed").length;
 
   return (
     <header className="flex h-14 items-center justify-between border-b bg-card px-6">

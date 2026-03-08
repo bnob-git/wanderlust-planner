@@ -1,3 +1,7 @@
+// ============================================================================
+// ENUMS & CONSTANTS
+// ============================================================================
+
 export type BookingStatus =
   | "idea"
   | "planned"
@@ -83,9 +87,20 @@ export type PacePreference = "relaxed" | "balanced" | "aggressive";
 export type WalkingTolerance = "low" | "medium" | "high";
 export type BudgetSensitivity = "budget" | "moderate" | "luxury";
 
+// ============================================================================
+// BASE INTERFACES
+// ============================================================================
+
+export interface BaseEntity {
+  id: string;
+  createdAt: string; // ISO 8601
+  updatedAt: string; // ISO 8601
+  createdBy: string; // Traveler ID
+}
+
 export interface Money {
   amount: number;
-  currency: string;
+  currency: string; // ISO 4217
 }
 
 export interface Location {
@@ -93,21 +108,24 @@ export interface Location {
   address?: string;
   latitude?: number;
   longitude?: number;
-  placeId?: string;
+  placeId?: string; // Google Places ID
 }
 
 export interface TimeRange {
-  start: string;
-  end: string;
+  start: string; // HH:mm
+  end: string; // HH:mm
 }
 
 export interface DateRange {
-  start: string;
-  end: string;
+  start: string; // YYYY-MM-DD
+  end: string; // YYYY-MM-DD
 }
 
-export interface Trip {
-  id: string;
+// ============================================================================
+// TRIP
+// ============================================================================
+
+export interface Trip extends BaseEntity {
   name: string;
   description?: string;
   coverImage?: string;
@@ -116,6 +134,7 @@ export interface Trip {
   settings: TripSettings;
   budget: TripBudget;
   isPublic: boolean;
+  shareCode?: string;
   travelerIds: string[];
   cityIds: string[];
 }
@@ -152,8 +171,11 @@ export interface TripBudget {
   perPersonDaily?: Money;
 }
 
-export interface Traveler {
-  id: string;
+// ============================================================================
+// TRAVELER
+// ============================================================================
+
+export interface Traveler extends BaseEntity {
   tripId: string;
   name: string;
   email?: string;
@@ -168,10 +190,15 @@ export interface Traveler {
     phone: string;
     relationship: string;
   };
+  passportNumber?: string;
+  passportExpiry?: string;
 }
 
-export interface Party {
-  id: string;
+// ============================================================================
+// PARTY
+// ============================================================================
+
+export interface Party extends BaseEntity {
   tripId: string;
   name: string;
   color: string;
@@ -181,8 +208,11 @@ export interface Party {
   isCore: boolean;
 }
 
-export interface City {
-  id: string;
+// ============================================================================
+// CITY / REGION
+// ============================================================================
+
+export interface City extends BaseEntity {
   tripId: string;
   name: string;
   country: string;
@@ -197,8 +227,7 @@ export interface City {
   dayIds: string[];
 }
 
-export interface Neighborhood {
-  id: string;
+export interface Neighborhood extends BaseEntity {
   cityId: string;
   name: string;
   description?: string;
@@ -207,12 +236,15 @@ export interface Neighborhood {
   walkability: WalkingTolerance;
 }
 
-export interface Day {
-  id: string;
+// ============================================================================
+// DAY
+// ============================================================================
+
+export interface Day extends BaseEntity {
   tripId: string;
   cityId: string;
   dayNumber: number;
-  date: string;
+  date: string; // YYYY-MM-DD
   dayOfWeek: string;
   status: DayStatus;
   theme?: string;
@@ -238,8 +270,11 @@ export interface TimeBlock {
   activityIds: string[];
 }
 
-export interface Activity {
-  id: string;
+// ============================================================================
+// ACTIVITY
+// ============================================================================
+
+export interface Activity extends BaseEntity {
   tripId: string;
   dayId: string;
   timeBlockId: string;
@@ -269,8 +304,11 @@ export interface Activity {
   order: number;
 }
 
-export interface Lodging {
-  id: string;
+// ============================================================================
+// LODGING
+// ============================================================================
+
+export interface Lodging extends BaseEntity {
   tripId: string;
   cityId: string;
   name: string;
@@ -294,11 +332,15 @@ export interface Lodging {
   totalCost: Money;
   costPerNight: Money;
   isPrepaid: boolean;
+  fileIds?: string[];
   notes?: string;
 }
 
-export interface Transport {
-  id: string;
+// ============================================================================
+// TRANSPORTATION
+// ============================================================================
+
+export interface Transport extends BaseEntity {
   tripId: string;
   type: TransportType;
   departure: {
@@ -325,13 +367,17 @@ export interface Transport {
   seatAssignments?: Record<string, string>;
   totalCost: Money;
   travelerIds: string[];
+  fileIds?: string[];
   departureDayId?: string;
   arrivalDayId?: string;
   notes?: string;
 }
 
-export interface Reservation {
-  id: string;
+// ============================================================================
+// RESERVATION
+// ============================================================================
+
+export interface Reservation extends BaseEntity {
   tripId: string;
   activityId?: string;
   name: string;
@@ -352,11 +398,15 @@ export interface Reservation {
   depositAmount?: Money;
   cancellationPolicy?: string;
   cancellationDeadline?: string;
+  fileIds?: string[];
   notes?: string;
 }
 
-export interface BudgetItem {
-  id: string;
+// ============================================================================
+// BUDGET ITEM
+// ============================================================================
+
+export interface BudgetItem extends BaseEntity {
   tripId: string;
   dayId?: string;
   activityId?: string;
@@ -372,12 +422,39 @@ export interface BudgetItem {
   notes?: string;
 }
 
+// ============================================================================
+// FILES & LINKS
+// ============================================================================
+
+export interface File extends BaseEntity {
+  tripId: string;
+  name: string;
+  type: "pdf" | "image" | "document" | "other";
+  mimeType: string;
+  size: number;
+  url: string;
+  category:
+    | "ticket"
+    | "confirmation"
+    | "receipt"
+    | "passport"
+    | "insurance"
+    | "map"
+    | "other";
+  linkedEntityType?: "lodging" | "transport" | "reservation" | "activity";
+  linkedEntityId?: string;
+}
+
 export interface Link {
   id: string;
   title: string;
   url: string;
   type: "booking" | "map" | "review" | "article" | "menu" | "other";
 }
+
+// ============================================================================
+// NOTES
+// ============================================================================
 
 export interface Note {
   id: string;
@@ -388,8 +465,11 @@ export interface Note {
   isPinned: boolean;
 }
 
-export interface ActionItem {
-  id: string;
+// ============================================================================
+// ACTION ITEMS
+// ============================================================================
+
+export interface ActionItem extends BaseEntity {
   type: "book" | "confirm" | "upload" | "decide" | "checkin";
   title: string;
   description: string;
@@ -397,7 +477,13 @@ export interface ActionItem {
   priority: "high" | "medium" | "low";
   linkedEntityType: string;
   linkedEntityId?: string;
+  status?: "pending" | "completed";
+  completedAt?: string;
 }
+
+// ============================================================================
+// COMPUTED / VIEW TYPES
+// ============================================================================
 
 export interface TripSummary {
   trip: Trip;
@@ -417,4 +503,65 @@ export interface TripSummary {
   };
   upcomingActions: ActionItem[];
   daysUntilDeparture: number;
+}
+
+export interface DayView {
+  day: Day;
+  city: City;
+  neighborhood?: Neighborhood;
+  lodging?: Lodging;
+  activities: (Activity & {
+    reservation?: Reservation;
+  })[];
+  transports: Transport[];
+  budgetItems: BudgetItem[];
+  previousDay?: { id: string; date: string };
+  nextDay?: { id: string; date: string };
+}
+
+export interface TimelineView {
+  trip: Trip;
+  phases: {
+    city: City;
+    days: {
+      day: Day;
+      highlights: string[];
+      hasTravel: boolean;
+    }[];
+  }[];
+}
+
+// ============================================================================
+// API REQUEST/RESPONSE TYPES
+// ============================================================================
+
+export interface CreateTripRequest {
+  name: string;
+  description?: string;
+  dateRange: DateRange;
+  settings?: Partial<TripSettings>;
+  budget?: Partial<TripBudget>;
+}
+
+export interface AddActivityRequest {
+  dayId: string;
+  timeBlockId: string;
+  name: string;
+  type: ActivityType;
+  startTime?: string;
+  durationMinutes: number;
+  location?: Location;
+  tags?: Tag[];
+}
+
+export interface ReorderActivitiesRequest {
+  dayId: string;
+  timeBlockId: string;
+  activityIds: string[];
+}
+
+export interface BulkStatusUpdateRequest {
+  entityType: "activity" | "reservation" | "lodging" | "transport";
+  entityIds: string[];
+  newStatus: BookingStatus;
 }
