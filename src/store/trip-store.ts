@@ -166,7 +166,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addParty: (party) =>
     set((state) => ({
-      parties: [...state.parties, { ...party, id: `party_${Date.now()}` }],
+      parties: [...state.parties, { ...party, id: `party_${crypto.randomUUID()}` }],
     })),
 
   updateParty: (partyId, updates) =>
@@ -183,7 +183,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addActivity: (activity) =>
     set((state) => ({
-      activities: [...state.activities, { ...activity, id: `activity_${Date.now()}` }],
+      activities: [...state.activities, { ...activity, id: `activity_${crypto.randomUUID()}` }],
     })),
 
   updateActivity: (activityId, updates) =>
@@ -200,7 +200,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addBudgetItem: (item) =>
     set((state) => ({
-      budgetItems: [...state.budgetItems, { ...item, id: `budget_${Date.now()}` }],
+      budgetItems: [...state.budgetItems, { ...item, id: `budget_${crypto.randomUUID()}` }],
     })),
 
   updateBudgetItem: (itemId, updates) =>
@@ -217,7 +217,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   addActionItem: (item) =>
     set((state) => ({
-      actionItems: [...state.actionItems, { ...item, id: `action_${Date.now()}` }],
+      actionItems: [...state.actionItems, { ...item, id: `action_${crypto.randomUUID()}` }],
     })),
 
   updateActionItem: (itemId, updates) =>
@@ -234,12 +234,16 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   completeActionItem: (itemId) =>
     set((state) => ({
-      actionItems: state.actionItems.filter((a) => a.id !== itemId),
+      actionItems: state.actionItems.map((a) =>
+        a.id === itemId
+          ? { ...a, status: "completed" as const, completedAt: new Date().toISOString() }
+          : a
+      ),
     })),
 
   addTraveler: (traveler) =>
     set((state) => ({
-      travelers: [...state.travelers, { ...traveler, id: `traveler_${Date.now()}` }],
+      travelers: [...state.travelers, { ...traveler, id: `traveler_${crypto.randomUUID()}` }],
     })),
 
   updateTraveler: (travelerId, updates) =>

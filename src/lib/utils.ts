@@ -39,7 +39,3 @@ export function calculateDaysBetween(start: string | Date, end: string | Date): 
   const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
-
-export function generateId(): string {
-  return Math.random().toString(36).substring(2, 15);
-}
