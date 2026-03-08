@@ -7,7 +7,7 @@ import { Bell, Search, Share2 } from "lucide-react";
 
 export function Header() {
   const { trip, travelers, actionItems } = useTripDataStore();
-  const pendingActions = actionItems.filter((a) => a.priority === "high").length;
+  const pendingActions = actionItems.filter((a) => a.priority === "high" && a.status !== "completed").length;
 
   return (
     <header className="flex h-14 items-center justify-between border-b bg-card px-6">

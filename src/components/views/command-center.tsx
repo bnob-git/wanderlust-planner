@@ -42,8 +42,9 @@ export function CommandCenter() {
     );
   }
 
-  const highPriorityActions = actionItems.filter((a) => a.priority === "high");
-  const otherActions = actionItems.filter((a) => a.priority !== "high");
+  const pendingItems = actionItems.filter((a) => a.status !== "completed");
+  const highPriorityActions = pendingItems.filter((a) => a.priority === "high");
+  const otherActions = pendingItems.filter((a) => a.priority !== "high");
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -134,7 +135,7 @@ export function CommandCenter() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Action Items</p>
-                <p className="text-3xl font-bold">{actionItems.length}</p>
+                <p className="text-3xl font-bold">{pendingItems.length}</p>
                 <p className="text-xs text-red-500">
                   {highPriorityActions.length} urgent
                 </p>
@@ -211,7 +212,7 @@ export function CommandCenter() {
                 Action Required
               </CardTitle>
               <span className="text-sm text-muted-foreground">
-                {actionItems.length} items
+                {pendingItems.length} items
               </span>
             </div>
           </CardHeader>
@@ -262,7 +263,7 @@ export function CommandCenter() {
               </div>
             ))}
 
-            {actionItems.length === 0 && (
+            {pendingItems.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">
                 No pending actions
               </p>
