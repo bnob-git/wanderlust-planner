@@ -27,6 +27,13 @@ import {
   actionItems as actionItemsData,
 } from "@/data/trip-data";
 
+// Check if Supabase is configured - if so, start with empty state
+// and let query hooks populate data. Otherwise use sample data.
+const hasSupabase =
+  typeof window !== "undefined" &&
+  !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
 type OmitBase<T extends BaseEntity> = Omit<T, keyof BaseEntity>;
 
 interface TripDataStore {
@@ -41,6 +48,19 @@ interface TripDataStore {
   reservations: Reservation[];
   budgetItems: BudgetItem[];
   actionItems: ActionItem[];
+
+  // Setters for query hooks to populate the store
+  setTrip: (trip: Trip) => void;
+  setTravelers: (travelers: Traveler[]) => void;
+  setParties: (parties: Party[]) => void;
+  setCities: (cities: City[]) => void;
+  setDays: (days: Day[]) => void;
+  setActivities: (activities: Activity[]) => void;
+  setLodgings: (lodgings: Lodging[]) => void;
+  setTransports: (transports: Transport[]) => void;
+  setReservations: (reservations: Reservation[]) => void;
+  setBudgetItems: (budgetItems: BudgetItem[]) => void;
+  setActionItems: (actionItems: ActionItem[]) => void;
 
   getCity: (cityId: string) => City | undefined;
   getParty: (partyId: string) => Party | undefined;
@@ -96,17 +116,30 @@ interface TripDataStore {
 }
 
 export const useTripDataStore = create<TripDataStore>((set, get) => ({
-  trip: tripData,
-  travelers: travelersData,
-  parties: partiesData,
-  cities: citiesData,
-  days: daysData,
-  activities: activitiesData,
-  lodgings: lodgingsData,
-  transports: transportsData,
-  reservations: reservationsData,
-  budgetItems: budgetItemsData,
-  actionItems: actionItemsData,
+  trip: hasSupabase ? null : tripData,
+  travelers: hasSupabase ? [] : travelersData,
+  parties: hasSupabase ? [] : partiesData,
+  cities: hasSupabase ? [] : citiesData,
+  days: hasSupabase ? [] : daysData,
+  activities: hasSupabase ? [] : activitiesData,
+  lodgings: hasSupabase ? [] : lodgingsData,
+  transports: hasSupabase ? [] : transportsData,
+  reservations: hasSupabase ? [] : reservationsData,
+  budgetItems: hasSupabase ? [] : budgetItemsData,
+  actionItems: hasSupabase ? [] : actionItemsData,
+
+  // Setters for query hooks
+  setTrip: (trip) => set({ trip }),
+  setTravelers: (travelers) => set({ travelers }),
+  setParties: (parties) => set({ parties }),
+  setCities: (cities) => set({ cities }),
+  setDays: (days) => set({ days }),
+  setActivities: (activities) => set({ activities }),
+  setLodgings: (lodgings) => set({ lodgings }),
+  setTransports: (transports) => set({ transports }),
+  setReservations: (reservations) => set({ reservations }),
+  setBudgetItems: (budgetItems) => set({ budgetItems }),
+  setActionItems: (actionItems) => set({ actionItems }),
 
   getCity: (cityId) => get().cities.find((c) => c.id === cityId),
   getParty: (partyId) => get().parties.find((p) => p.id === partyId),

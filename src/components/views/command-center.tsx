@@ -1,10 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import { useTripDataStore } from "@/store/trip-data-store";
+import { useTripId } from "@/hooks/use-trip-id";
+import { useUpdateTrip } from "@/hooks/use-trip-mutations";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { StatusPill } from "@/components/status-pill";
 import { formatCurrency, formatDate, calculateDaysBetween } from "@/lib/utils";
 import {
@@ -18,6 +31,7 @@ import {
   Plane,
   Train,
   Hotel,
+  Pencil,
 } from "lucide-react";
 
 export function CommandCenter() {
@@ -31,8 +45,51 @@ export function CommandCenter() {
     completeActionItem,
   } = useTripDataStore();
   const router = useRouter();
+  const tripId = useTripId();
+  const updateTrip = useUpdateTrip();
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState("");
+  const [editBudgetAmount, setEditBudgetAmount] = useState("");
+  const [editBudgetCurrency, setEditBudgetCurrency] = useState("EUR");
 
   const summary = getTripSummary();
+
+  const openEditDialog = () => {
+    if (!trip) return;
+    setEditName(trip.name);
+    setEditDescription(trip.description || "");
+    setEditStartDate(trip.dateRange.start);
+    setEditEndDate(trip.dateRange.end);
+    setEditBudgetAmount(String(trip.budget.total.amount || ""));
+    setEditBudgetCurrency(trip.budget.total.currency);
+    setIsEditOpen(true);
+  };
+
+  const handleEditTrip = () => {
+    if (!trip) return;
+    updateTrip.mutate({
+      tripId: trip.id,
+      updates: {
+        name: editName,
+        description: editDescription || undefined,
+        dateRange: { start: editStartDate, end: editEndDate },
+        budget: {
+          ...trip.budget,
+          total: {
+            amount: parseFloat(editBudgetAmount) || 0,
+            currency: editBudgetCurrency,
+          },
+        },
+      },
+    });
+    setIsEditOpen(false);
+  };
+
+  const tripBase = tripId ? `/trip/${tripId}` : "";
 
   if (!trip) {
     return (
@@ -65,18 +122,24 @@ export function CommandCenter() {
             • {summary.totalDays} days • {trip.travelerIds.length} travelers
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-muted-foreground">Days until departure</p>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" className="gap-1" onClick={openEditDialog}>
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </Button>
+          <div className="text-right">
+            <p className="text-sm text-muted-foreground">Days until departure</p>
           <p className="text-4xl font-bold text-primary">
             {summary.daysUntilDeparture}
           </p>
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => router.push("/timeline")}
+          onClick={() => router.push(`${tripBase}/timeline`)}
         >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -91,7 +154,7 @@ export function CommandCenter() {
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => router.push("/itinerary")}
+          onClick={() => router.push(`${tripBase}/itinerary`)}
         >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -109,7 +172,7 @@ export function CommandCenter() {
 
         <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => router.push("/budget")}
+                  onClick={() => router.push(`${tripBase}/budget`)}
                 >
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
@@ -281,7 +344,7 @@ export function CommandCenter() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push("/logistics")}
+                onClick={() => router.push(`${tripBase}/logistics`)}
               >
                 View All
                 <ChevronRight className="h-4 w-4 ml-1" />
@@ -344,7 +407,7 @@ export function CommandCenter() {
             <Button
               variant="ghost"
               size="sm"
-                          onClick={() => router.push("/budget")}
+                          onClick={() => router.push(`${tripBase}/budget`)}
                         >
                           Details
               <ChevronRight className="h-4 w-4 ml-1" />
@@ -381,6 +444,87 @@ export function CommandCenter() {
           </div>
         </CardContent>
       </Card>
+      {/* Edit Trip Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Trip Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="tripName">Trip Name</Label>
+              <Input
+                id="tripName"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tripDesc">Description</Label>
+              <Textarea
+                id="tripDesc"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={2}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="tripStart">Start Date</Label>
+                <Input
+                  id="tripStart"
+                  type="date"
+                  value={editStartDate}
+                  onChange={(e) => setEditStartDate(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tripEnd">End Date</Label>
+                <Input
+                  id="tripEnd"
+                  type="date"
+                  value={editEndDate}
+                  onChange={(e) => setEditEndDate(e.target.value)}
+                  min={editStartDate}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="tripBudget">Total Budget</Label>
+                <Input
+                  id="tripBudget"
+                  type="number"
+                  value={editBudgetAmount}
+                  onChange={(e) => setEditBudgetAmount(e.target.value)}
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tripCurrency">Currency</Label>
+                <select
+                  id="tripCurrency"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={editBudgetCurrency}
+                  onChange={(e) => setEditBudgetCurrency(e.target.value)}
+                >
+                  <option value="EUR">EUR</option>
+                  <option value="USD">USD</option>
+                  <option value="GBP">GBP</option>
+                  <option value="JPY">JPY</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEditTrip}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

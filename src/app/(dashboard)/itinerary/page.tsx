@@ -1,7 +1,20 @@
 "use client";
 
-import { ItineraryView } from "@/components/views/itinerary-view";
+import { useRouter } from "next/navigation";
+import { useTripDataStore } from "@/store/trip-data-store";
+import { useEffect } from "react";
 
 export default function ItineraryPage() {
-  return <ItineraryView />;
+  const router = useRouter();
+  const trip = useTripDataStore((s) => s.trip);
+
+  useEffect(() => {
+    if (trip) {
+      router.replace(`/trip/${trip.id}/itinerary`);
+    } else {
+      router.replace("/");
+    }
+  }, [trip, router]);
+
+  return null;
 }

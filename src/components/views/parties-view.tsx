@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useTripDataStore } from "@/store/trip-data-store";
+import { useTripId } from "@/hooks/use-trip-id";
+import { useAddParty, useDeleteParty } from "@/hooks/use-trip-mutations";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,8 +42,11 @@ const partyColors: Record<string, { bg: string; text: string; border: string }> 
 };
 
 export function PartiesView() {
-  const { parties, travelers, cities, trip, addParty, deleteParty } = useTripDataStore();
+  const { parties, travelers, cities, trip } = useTripDataStore();
   const router = useRouter();
+  const tripId = useTripId();
+  const addPartyMutation = useAddParty();
+  const deletePartyMutation = useDeleteParty();
   const [isAddPartyOpen, setIsAddPartyOpen] = useState(false);
   const [newPartyName, setNewPartyName] = useState("");
   const [newPartyStartDate, setNewPartyStartDate] = useState("");
@@ -56,7 +61,7 @@ export function PartiesView() {
   const handleAddParty = () => {
     if (!newPartyName || !newPartyStartDate || !newPartyEndDate) return;
     
-    addParty({
+    addPartyMutation.mutate({
       tripId: trip.id,
       name: newPartyName,
       color: selectedColor,
@@ -78,7 +83,7 @@ export function PartiesView() {
 
   const handleDeleteParty = (partyId: string) => {
     if (confirm("Are you sure you want to delete this party?")) {
-      deleteParty(partyId);
+      deletePartyMutation.mutate(partyId);
     }
   };
 
@@ -94,7 +99,7 @@ export function PartiesView() {
         <div>
           <h1 className="text-2xl font-bold">Travel Parties</h1>
           <p className="text-muted-foreground">
-            Manage who's joining for which parts of the trip
+            Manage who&apos;s joining for which parts of the trip
           </p>
         </div>
         <Button onClick={() => setIsAddPartyOpen(true)}>
@@ -244,7 +249,7 @@ export function PartiesView() {
                       variant="ghost"
                       size="sm"
                       className="flex-1 justify-between"
-                      onClick={() => router.push("/itinerary")}
+                      onClick={() => router.push(tripId ? `/trip/${tripId}/itinerary` : "/itinerary")}
                     >
                       View Their Itinerary
                       <ChevronRight className="h-4 w-4" />

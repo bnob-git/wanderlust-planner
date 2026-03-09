@@ -2,10 +2,21 @@
 
 import { useState } from "react";
 import { useTripDataStore } from "@/store/trip-data-store";
+import { useTripId } from "@/hooks/use-trip-id";
+import { useCreateCity, useDeleteCity } from "@/hooks/use-trip-mutations";
 import { useUiStore } from "@/store/ui-store";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { formatDate, calculateDaysBetween } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import {
@@ -18,6 +29,8 @@ import {
   Hotel,
   Plane,
   Train,
+  Plus,
+  Trash2,
 } from "lucide-react";
 
 const cityColors = [
@@ -55,7 +68,40 @@ export function TimelineView() {
     useTripDataStore();
   const { setSelectedDay } = useUiStore();
   const router = useRouter();
+  const tripId = useTripId();
+  const createCity = useCreateCity();
+  const deleteCity = useDeleteCity();
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [isAddCityOpen, setIsAddCityOpen] = useState(false);
+  const [newCityName, setNewCityName] = useState("");
+  const [newCityCountry, setNewCityCountry] = useState("");
+  const [newCityTimezone, setNewCityTimezone] = useState("Europe/London");
+  const [newCityStart, setNewCityStart] = useState("");
+  const [newCityEnd, setNewCityEnd] = useState("");
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const handleAddCity = () => {
+    if (!trip || !newCityName || !newCityCountry || !newCityStart || !newCityEnd) return;
+    createCity.mutate({
+      tripId: trip.id,
+      name: newCityName,
+      country: newCityCountry,
+      timezone: newCityTimezone,
+      dateRange: { start: newCityStart, end: newCityEnd },
+      order: cities.length,
+    });
+    setIsAddCityOpen(false);
+    setNewCityName("");
+    setNewCityCountry("");
+    setNewCityStart("");
+    setNewCityEnd("");
+  };
+
+  const handleDeleteCity = (cityId: string) => {
+    if (!trip) return;
+    deleteCity.mutate({ cityId, tripId: trip.id });
+    setDeleteConfirmId(null);
+  };
 
   if (!trip) {
     return (
@@ -259,7 +305,7 @@ export function TimelineView() {
                       )}
                       onClick={() => {
                         setSelectedDay(day.id);
-                        router.push("/itinerary");
+                        router.push(tripId ? `/trip/${tripId}/itinerary` : "/itinerary");
                       }}
                       title={day.theme || `Day ${day.dayNumber}`}
                     >
@@ -276,7 +322,15 @@ export function TimelineView() {
         </CardContent>
       </Card>
 
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="mt-6 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">City Details</h2>
+        <Button className="gap-2" onClick={() => setIsAddCityOpen(true)}>
+          <Plus className="h-4 w-4" />
+          Add City
+        </Button>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {cities.map((city, index) => {
           const color = cityColors[index % cityColors.length];
           const cityDays = days.filter((d) => d.cityId === city.id);
@@ -325,11 +379,120 @@ export function TimelineView() {
                     {city.description}
                   </p>
                 )}
+                <div className="mt-3 pt-3 border-t flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive hover:text-destructive gap-1"
+                    onClick={() => setDeleteConfirmId(city.id)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    Delete
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           );
         })}
       </div>
+
+      {/* Add City Dialog */}
+      <Dialog open={isAddCityOpen} onOpenChange={setIsAddCityOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add City</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cityName">City Name *</Label>
+                <Input
+                  id="cityName"
+                  placeholder="e.g., Paris"
+                  value={newCityName}
+                  onChange={(e) => setNewCityName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cityCountry">Country *</Label>
+                <Input
+                  id="cityCountry"
+                  placeholder="e.g., France"
+                  value={newCityCountry}
+                  onChange={(e) => setNewCityCountry(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cityTimezone">Timezone</Label>
+              <Input
+                id="cityTimezone"
+                placeholder="e.g., Europe/Paris"
+                value={newCityTimezone}
+                onChange={(e) => setNewCityTimezone(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cityStart">Start Date *</Label>
+                <Input
+                  id="cityStart"
+                  type="date"
+                  value={newCityStart}
+                  onChange={(e) => setNewCityStart(e.target.value)}
+                  min={trip?.dateRange.start}
+                  max={trip?.dateRange.end}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cityEnd">End Date *</Label>
+                <Input
+                  id="cityEnd"
+                  type="date"
+                  value={newCityEnd}
+                  onChange={(e) => setNewCityEnd(e.target.value)}
+                  min={newCityStart || trip?.dateRange.start}
+                  max={trip?.dateRange.end}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddCityOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddCity}
+              disabled={!newCityName || !newCityCountry || !newCityStart || !newCityEnd}
+            >
+              Add City
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete City Confirmation */}
+      <Dialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete City</DialogTitle>
+          </DialogHeader>
+          <p className="py-4 text-sm text-muted-foreground">
+            Are you sure you want to delete this city? This will also delete all associated days and activities.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteConfirmId && handleDeleteCity(deleteConfirmId)}
+            >
+              Delete City
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

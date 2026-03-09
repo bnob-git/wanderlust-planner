@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { useTripDataStore } from "@/store/trip-data-store";
+import {
+  useUpdateActivity,
+  useDeleteActivity,
+  useUpdateActivityStatus,
+} from "@/hooks/use-trip-mutations";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/status-pill";
 import { ActivityTag } from "@/components/activity-tag";
@@ -58,12 +63,10 @@ export function ActivityCard({
   isLocked,
   isCompact = false,
 }: ActivityCardProps) {
-  const {
-    getReservation,
-    updateActivity,
-    deleteActivity,
-    updateActivityStatus,
-  } = useTripDataStore();
+  const { getReservation } = useTripDataStore();
+  const updateActivityMutation = useUpdateActivity();
+  const deleteActivityMutation = useDeleteActivity();
+  const updateStatusMutation = useUpdateActivityStatus();
   const reservation = activity.reservationId
     ? getReservation(activity.reservationId)
     : undefined;
@@ -101,21 +104,29 @@ export function ActivityCard({
     if (isLocked) return;
     const currentIndex = statusFlow.indexOf(activity.status);
     if (currentIndex === -1 || currentIndex >= statusFlow.length - 1) return;
-    updateActivityStatus(activity.id, statusFlow[currentIndex + 1]);
+    updateStatusMutation.mutate({
+      activityId: activity.id,
+      status: statusFlow[currentIndex + 1],
+      tripId: activity.tripId,
+    });
   };
 
   const handleEdit = () => {
-    updateActivity(activity.id, {
-      name: editName,
-      type: editType,
-      durationMinutes: parseInt(editDuration) || 60,
-      description: editDescription || undefined,
+    updateActivityMutation.mutate({
+      activityId: activity.id,
+      updates: {
+        name: editName,
+        type: editType,
+        durationMinutes: parseInt(editDuration) || 60,
+        description: editDescription || undefined,
+      },
+      tripId: activity.tripId,
     });
     setIsEditOpen(false);
   };
 
   const handleDelete = () => {
-    deleteActivity(activity.id);
+    deleteActivityMutation.mutate(activity.id);
     setIsDeleteOpen(false);
   };
 

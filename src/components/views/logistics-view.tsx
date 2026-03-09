@@ -1,9 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import { useTripDataStore } from "@/store/trip-data-store";
+import {
+  useDeleteLodging,
+  useDeleteTransport,
+  useDeleteReservation,
+} from "@/hooks/use-trip-mutations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { StatusPill } from "@/components/status-pill";
 import { formatDate, formatTime, formatCurrency } from "@/lib/utils";
 import type { Transport, Lodging, Reservation } from "@/types";
@@ -26,9 +39,10 @@ import {
   Navigation,
   Copy,
   CheckCircle,
+  Trash2,
 } from "lucide-react";
 
-function TransportCard({ transport }: { transport: Transport }) {
+function TransportCard({ transport, onDelete }: { transport: Transport; onDelete?: (id: string) => void }) {
   const { travelers, getTraveler } = useTripDataStore();
 
   const getIcon = () => {
@@ -211,6 +225,17 @@ function TransportCard({ transport }: { transport: Transport }) {
                   <Calendar className="h-4 w-4 mr-1" />
                   Add to Calendar
                 </Button>
+                {onDelete && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => onDelete(transport.id)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -220,7 +245,7 @@ function TransportCard({ transport }: { transport: Transport }) {
   );
 }
 
-function LodgingCard({ lodging }: { lodging: Lodging }) {
+function LodgingCard({ lodging, onDelete }: { lodging: Lodging; onDelete?: (id: string) => void }) {
   return (
     <Card>
       <CardContent className="p-4">
@@ -381,6 +406,17 @@ function LodgingCard({ lodging }: { lodging: Lodging }) {
                   Booking
                 </Button>
               )}
+              {onDelete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => onDelete(lodging.id)}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -389,7 +425,7 @@ function LodgingCard({ lodging }: { lodging: Lodging }) {
   );
 }
 
-function ReservationCard({ reservation }: { reservation: Reservation }) {
+function ReservationCard({ reservation, onDelete }: { reservation: Reservation; onDelete?: (id: string) => void }) {
   const dateTime = new Date(reservation.dateTime);
 
   return (
@@ -504,6 +540,17 @@ function ReservationCard({ reservation }: { reservation: Reservation }) {
                   Call
                 </Button>
               )}
+              {onDelete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => onDelete(reservation.id)}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -513,7 +560,20 @@ function ReservationCard({ reservation }: { reservation: Reservation }) {
 }
 
 export function LogisticsView() {
-  const { transports, lodgings, reservations } = useTripDataStore();
+  const { transports, lodgings, reservations, trip } = useTripDataStore();
+  const deleteLodging = useDeleteLodging();
+  const deleteTransport = useDeleteTransport();
+  const deleteReservation = useDeleteReservation();
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: string; id: string } | null>(null);
+
+  const handleDelete = () => {
+    if (!deleteConfirm || !trip) return;
+    const { type, id } = deleteConfirm;
+    if (type === "lodging") deleteLodging.mutate({ lodgingId: id, tripId: trip.id });
+    else if (type === "transport") deleteTransport.mutate({ transportId: id, tripId: trip.id });
+    else if (type === "reservation") deleteReservation.mutate({ reservationId: id, tripId: trip.id });
+    setDeleteConfirm(null);
+  };
 
   const flights = transports.filter((t) => t.type === "flight");
   const trains = transports.filter((t) => t.type === "train");
@@ -555,7 +615,7 @@ export function LogisticsView() {
               </h2>
               <div className="space-y-3">
                 {flights.map((transport) => (
-                  <TransportCard key={transport.id} transport={transport} />
+                  <TransportCard key={transport.id} transport={transport} onDelete={(id) => setDeleteConfirm({ type: "transport", id })} />
                 ))}
               </div>
             </div>
@@ -569,7 +629,7 @@ export function LogisticsView() {
               </h2>
               <div className="space-y-3">
                 {trains.map((transport) => (
-                  <TransportCard key={transport.id} transport={transport} />
+                  <TransportCard key={transport.id} transport={transport} onDelete={(id) => setDeleteConfirm({ type: "transport", id })} />
                 ))}
               </div>
             </div>
@@ -583,7 +643,7 @@ export function LogisticsView() {
               </h2>
               <div className="space-y-3">
                 {otherTransport.map((transport) => (
-                  <TransportCard key={transport.id} transport={transport} />
+                  <TransportCard key={transport.id} transport={transport} onDelete={(id) => setDeleteConfirm({ type: "transport", id })} />
                 ))}
               </div>
             </div>
@@ -592,16 +652,36 @@ export function LogisticsView() {
 
         <TabsContent value="lodging" className="space-y-4">
           {lodgings.map((lodging) => (
-            <LodgingCard key={lodging.id} lodging={lodging} />
+            <LodgingCard key={lodging.id} lodging={lodging} onDelete={(id) => setDeleteConfirm({ type: "lodging", id })} />
           ))}
         </TabsContent>
 
         <TabsContent value="reservations" className="space-y-4">
           {reservations.map((reservation) => (
-            <ReservationCard key={reservation.id} reservation={reservation} />
+            <ReservationCard key={reservation.id} reservation={reservation} onDelete={(id) => setDeleteConfirm({ type: "reservation", id })} />
           ))}
         </TabsContent>
       </Tabs>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete {deleteConfirm?.type}</DialogTitle>
+          </DialogHeader>
+          <p className="py-4 text-sm text-muted-foreground">
+            Are you sure you want to delete this {deleteConfirm?.type}? This action cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
