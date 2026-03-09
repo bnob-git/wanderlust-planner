@@ -103,12 +103,10 @@ export function useUpdateTrip() {
       tripId: string;
       updates: Partial<Trip>;
     }) => {
-      if (!hasSupabase) {
-        // Optimistic local update
-        const current = useTripDataStore.getState().trip;
-        if (current) setTrip({ ...current, ...updates });
-        return;
-      }
+      // Optimistic local update (always, for immediate UI feedback)
+      const current = useTripDataStore.getState().trip;
+      if (current) setTrip({ ...current, ...updates });
+      if (!hasSupabase) return;
       const supabase = getSupabase();
       const dbData = tripToDbTrip(updates);
       const { error } = await supabase

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTripDataStore } from "@/store/trip-data-store";
-import { useCreateActivity, useReorderActivities } from "@/hooks/use-trip-mutations";
+import { useAddActivity, useReorderActivities } from "@/hooks/use-trip-mutations";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -70,7 +70,7 @@ export function TimeBlockSection({
 }: TimeBlockSectionProps) {
   const { getActivitiesForTimeBlock, trip } =
     useTripDataStore();
-  const createActivityMutation = useCreateActivity();
+  const createActivityMutation = useAddActivity();
   const reorderActivitiesMutation = useReorderActivities();
   const activities = getActivitiesForTimeBlock(timeBlock.id);
   const Icon = timeBlockIcons[timeBlock.type];
