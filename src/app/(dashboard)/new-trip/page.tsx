@@ -26,6 +26,8 @@ export default function NewTripPage() {
     e.preventDefault();
     if (!name || !startDate || !endDate) return;
 
+    setErrorMessage("");
+
     try {
       const result = await createTrip.mutateAsync({
         name,
