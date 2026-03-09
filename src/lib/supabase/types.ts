@@ -337,15 +337,15 @@ function buildLocation(
   return {
     name: name || "",
     address: address || undefined,
-    latitude: lat || undefined,
-    longitude: lng || undefined,
+    latitude: lat ?? undefined,
+    longitude: lng ?? undefined,
     placeId: placeId || undefined,
   };
 }
 
 function buildMoney(amount: number | null, currency: string | null): Money {
   return {
-    amount: amount || 0,
+    amount: amount ?? 0,
     currency: currency || "EUR",
   };
 }
@@ -885,8 +885,8 @@ export function cityToDbCity(city: Partial<City>): Record<string, unknown> {
   if (city.location) {
     result.location_name = city.location.name;
     result.location_address = city.location.address || null;
-    result.location_lat = city.location.latitude || null;
-    result.location_lng = city.location.longitude || null;
+    result.location_lat = city.location.latitude ?? null;
+    result.location_lng = city.location.longitude ?? null;
     result.location_place_id = city.location.placeId || null;
   }
   if (city.description !== undefined) result.description = city.description || null;
@@ -912,15 +912,15 @@ export function activityToDbActivity(
   if (activity.location !== undefined) {
     result.location_name = activity.location?.name || null;
     result.location_address = activity.location?.address || null;
-    result.location_lat = activity.location?.latitude || null;
-    result.location_lng = activity.location?.longitude || null;
+    result.location_lat = activity.location?.latitude ?? null;
+    result.location_lng = activity.location?.longitude ?? null;
     result.location_place_id = activity.location?.placeId || null;
   }
   if (activity.status !== undefined) result.status = activity.status;
   if (activity.tags !== undefined) result.tags = activity.tags;
   if (activity.priority !== undefined) result.priority = activity.priority;
   if (activity.cost !== undefined) {
-    result.cost_amount = activity.cost?.amount || null;
+    result.cost_amount = activity.cost?.amount ?? null;
     result.cost_currency = activity.cost?.currency || null;
   }
   if (activity.costSplit !== undefined) result.cost_split = activity.costSplit;
@@ -928,10 +928,10 @@ export function activityToDbActivity(
   if (activity.transitToNext !== undefined) {
     result.transit_mode = activity.transitToNext?.mode || null;
     result.transit_duration_minutes =
-      activity.transitToNext?.durationMinutes || null;
+      activity.transitToNext?.durationMinutes ?? null;
     result.transit_distance = activity.transitToNext?.distance || null;
     result.transit_cost_amount =
-      activity.transitToNext?.cost?.amount || null;
+      activity.transitToNext?.cost?.amount ?? null;
     result.transit_cost_currency =
       activity.transitToNext?.cost?.currency || null;
     result.transit_notes = activity.transitToNext?.notes || null;
@@ -964,8 +964,8 @@ export function lodgingToDbLodging(
   if (lodging.location !== undefined) {
     result.location_name = lodging.location.name;
     result.location_address = lodging.location.address || null;
-    result.location_lat = lodging.location.latitude || null;
-    result.location_lng = lodging.location.longitude || null;
+    result.location_lat = lodging.location.latitude ?? null;
+    result.location_lng = lodging.location.longitude ?? null;
     result.location_place_id = lodging.location.placeId || null;
   }
   if (lodging.status !== undefined) result.status = lodging.status;
@@ -1008,8 +1008,8 @@ export function transportToDbTransport(
   if (transport.departure !== undefined) {
     result.departure_location_name = transport.departure.location.name;
     result.departure_location_address = transport.departure.location.address || null;
-    result.departure_lat = transport.departure.location.latitude || null;
-    result.departure_lng = transport.departure.location.longitude || null;
+    result.departure_lat = transport.departure.location.latitude ?? null;
+    result.departure_lng = transport.departure.location.longitude ?? null;
     result.departure_datetime = transport.departure.dateTime;
     result.departure_terminal = transport.departure.terminal || null;
     result.departure_gate = transport.departure.gate || null;
@@ -1018,8 +1018,8 @@ export function transportToDbTransport(
   if (transport.arrival !== undefined) {
     result.arrival_location_name = transport.arrival.location.name;
     result.arrival_location_address = transport.arrival.location.address || null;
-    result.arrival_lat = transport.arrival.location.latitude || null;
-    result.arrival_lng = transport.arrival.location.longitude || null;
+    result.arrival_lat = transport.arrival.location.latitude ?? null;
+    result.arrival_lng = transport.arrival.location.longitude ?? null;
     result.arrival_datetime = transport.arrival.dateTime;
     result.arrival_terminal = transport.arrival.terminal || null;
   }
@@ -1062,12 +1062,12 @@ export function reservationToDbReservation(
   if (res.type !== undefined) result.type = res.type;
   if (res.dateTime !== undefined) result.datetime = res.dateTime;
   if (res.durationMinutes !== undefined)
-    result.duration_minutes = res.durationMinutes || null;
+    result.duration_minutes = res.durationMinutes ?? null;
   if (res.location !== undefined) {
     result.location_name = res.location?.name || null;
     result.location_address = res.location?.address || null;
-    result.location_lat = res.location?.latitude || null;
-    result.location_lng = res.location?.longitude || null;
+    result.location_lat = res.location?.latitude ?? null;
+    result.location_lng = res.location?.longitude ?? null;
     result.location_place_id = res.location?.placeId || null;
   }
   if (res.status !== undefined) result.status = res.status;
@@ -1084,12 +1084,12 @@ export function reservationToDbReservation(
   if (res.contactEmail !== undefined)
     result.contact_email = res.contactEmail || null;
   if (res.cost !== undefined) {
-    result.cost_amount = res.cost?.amount || null;
+    result.cost_amount = res.cost?.amount ?? null;
     result.cost_currency = res.cost?.currency || null;
   }
   if (res.isPrepaid !== undefined) result.is_prepaid = res.isPrepaid;
   if (res.depositAmount !== undefined) {
-    result.deposit_amount = res.depositAmount?.amount || null;
+    result.deposit_amount = res.depositAmount?.amount ?? null;
     result.deposit_currency = res.depositAmount?.currency || null;
   }
   if (res.cancellationPolicy !== undefined)

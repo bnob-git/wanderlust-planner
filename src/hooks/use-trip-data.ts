@@ -96,7 +96,7 @@ export function useDaysQuery(tripId?: string) {
   });
 
   useEffect(() => {
-    if (query.data && query.data.length > 0) { setDays(query.data); }
+    if (query.data) { setDays(query.data); }
   }, [query.data, setDays]);
 
   return { ...query, data: query.data ?? storeDays };
@@ -121,7 +121,7 @@ export function useActivitiesQuery(tripId?: string) {
   });
 
   useEffect(() => {
-    if (query.data && query.data.length > 0) { setActivities(query.data); }
+    if (query.data) { setActivities(query.data); }
   }, [query.data, setActivities]);
 
   return { ...query, data: query.data ?? storeActivities };
@@ -159,7 +159,7 @@ export function useCitiesQuery(tripId?: string) {
   });
 
   useEffect(() => {
-    if (query.data && query.data.length > 0) { setCities(query.data); }
+    if (query.data) { setCities(query.data); }
   }, [query.data, setCities]);
 
   return { ...query, data: query.data ?? storeCities };
@@ -180,16 +180,22 @@ export function useTravelersQuery(tripId?: string) {
 
       const partyMemberships: Record<string, string> = {};
       try {
-        const { data: partyTravelers } = await supabase
-          .from("party_travelers").select("party_id, traveler_id");
-        if (partyTravelers) {
-          for (const pt of partyTravelers) {
-            const ptTyped = pt as { party_id: string; traveler_id: string };
-            partyMemberships[ptTyped.traveler_id] = ptTyped.party_id;
+        const { data: partyRows } = await supabase
+          .from("parties").select("id").eq("trip_id", tripId);
+        const partyIds = (partyRows || []).map((p: { id: string }) => p.id);
+        if (partyIds.length > 0) {
+          const { data: partyTravelers } = await supabase
+            .from("party_travelers").select("party_id, traveler_id")
+            .in("party_id", partyIds);
+          if (partyTravelers) {
+            for (const pt of partyTravelers) {
+              const ptTyped = pt as { party_id: string; traveler_id: string };
+              partyMemberships[ptTyped.traveler_id] = ptTyped.party_id;
+            }
           }
         }
       } catch {
-        // party_travelers table may not exist yet
+        // party_travelers/parties tables may not exist yet
       }
 
       return (data || []).map((row: unknown) => {
@@ -203,7 +209,7 @@ export function useTravelersQuery(tripId?: string) {
   });
 
   useEffect(() => {
-    if (query.data && query.data.length > 0) { setTravelers(query.data); }
+    if (query.data) { setTravelers(query.data); }
   }, [query.data, setTravelers]);
 
   return { ...query, data: query.data ?? storeTravelers };
@@ -228,7 +234,7 @@ export function useLodgingsQuery(tripId?: string) {
   });
 
   useEffect(() => {
-    if (query.data && query.data.length > 0) { setLodgings(query.data); }
+    if (query.data) { setLodgings(query.data); }
   }, [query.data, setLodgings]);
 
   return { ...query, data: query.data ?? storeLodgings };
@@ -254,7 +260,7 @@ export function useTransportsQuery(tripId?: string) {
   });
 
   useEffect(() => {
-    if (query.data && query.data.length > 0) { setTransports(query.data); }
+    if (query.data) { setTransports(query.data); }
   }, [query.data, setTransports]);
 
   return { ...query, data: query.data ?? storeTransports };
@@ -279,7 +285,7 @@ export function useBudgetItemsQuery(tripId?: string) {
   });
 
   useEffect(() => {
-    if (query.data && query.data.length > 0) { setBudgetItems(query.data); }
+    if (query.data) { setBudgetItems(query.data); }
   }, [query.data, setBudgetItems]);
 
   return { ...query, data: query.data ?? storeBudgetItems };
@@ -363,7 +369,7 @@ export function useReservationsQuery(tripId?: string) {
   });
 
   useEffect(() => {
-    if (query.data && query.data.length > 0) { setReservations(query.data); }
+    if (query.data) { setReservations(query.data); }
   }, [query.data, setReservations]);
 
   return { ...query, data: query.data ?? storeReservations };
