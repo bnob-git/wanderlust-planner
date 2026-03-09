@@ -691,6 +691,7 @@ ALTER TABLE time_blocks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lodgings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE transports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE transport_travelers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reservations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE budget_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE files ENABLE ROW LEVEL SECURITY;
@@ -725,8 +726,370 @@ CREATE POLICY travelers_select ON travelers FOR SELECT USING (
   )
 );
 
--- Similar policies for other tables (abbreviated for brevity)
--- In production, each table would have full CRUD policies
+-- Travelers: Insert/Update/Delete
+CREATE POLICY travelers_insert ON travelers FOR INSERT WITH CHECK (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+CREATE POLICY travelers_update ON travelers FOR UPDATE USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid()
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+  )
+);
+
+CREATE POLICY travelers_delete ON travelers FOR DELETE USING (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+-- Cities
+CREATE POLICY cities_select ON cities FOR SELECT USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+  )
+);
+
+CREATE POLICY cities_insert ON cities FOR INSERT WITH CHECK (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+CREATE POLICY cities_update ON cities FOR UPDATE USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid()
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+  )
+);
+
+CREATE POLICY cities_delete ON cities FOR DELETE USING (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+-- Neighborhoods (references cities → trips)
+CREATE POLICY neighborhoods_select ON neighborhoods FOR SELECT USING (
+  city_id IN (
+    SELECT id FROM cities WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+      UNION
+      SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+    )
+  )
+);
+
+CREATE POLICY neighborhoods_insert ON neighborhoods FOR INSERT WITH CHECK (
+  city_id IN (
+    SELECT id FROM cities WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+    )
+  )
+);
+
+CREATE POLICY neighborhoods_update ON neighborhoods FOR UPDATE USING (
+  city_id IN (
+    SELECT id FROM cities WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+      UNION
+      SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+    )
+  )
+);
+
+CREATE POLICY neighborhoods_delete ON neighborhoods FOR DELETE USING (
+  city_id IN (
+    SELECT id FROM cities WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+    )
+  )
+);
+
+-- Days
+CREATE POLICY days_select ON days FOR SELECT USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+  )
+);
+
+CREATE POLICY days_insert ON days FOR INSERT WITH CHECK (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+CREATE POLICY days_update ON days FOR UPDATE USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid()
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+  )
+);
+
+CREATE POLICY days_delete ON days FOR DELETE USING (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+-- Time Blocks (references days → trips)
+CREATE POLICY time_blocks_select ON time_blocks FOR SELECT USING (
+  day_id IN (
+    SELECT id FROM days WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+      UNION
+      SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+    )
+  )
+);
+
+CREATE POLICY time_blocks_insert ON time_blocks FOR INSERT WITH CHECK (
+  day_id IN (
+    SELECT id FROM days WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+    )
+  )
+);
+
+CREATE POLICY time_blocks_update ON time_blocks FOR UPDATE USING (
+  day_id IN (
+    SELECT id FROM days WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+      UNION
+      SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+    )
+  )
+);
+
+CREATE POLICY time_blocks_delete ON time_blocks FOR DELETE USING (
+  day_id IN (
+    SELECT id FROM days WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+    )
+  )
+);
+
+-- Activities
+CREATE POLICY activities_select ON activities FOR SELECT USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+  )
+);
+
+CREATE POLICY activities_insert ON activities FOR INSERT WITH CHECK (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+CREATE POLICY activities_update ON activities FOR UPDATE USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid()
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+  )
+);
+
+CREATE POLICY activities_delete ON activities FOR DELETE USING (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+-- Lodgings
+CREATE POLICY lodgings_select ON lodgings FOR SELECT USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+  )
+);
+
+CREATE POLICY lodgings_insert ON lodgings FOR INSERT WITH CHECK (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+CREATE POLICY lodgings_update ON lodgings FOR UPDATE USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid()
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+  )
+);
+
+CREATE POLICY lodgings_delete ON lodgings FOR DELETE USING (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+-- Transports
+CREATE POLICY transports_select ON transports FOR SELECT USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+  )
+);
+
+CREATE POLICY transports_insert ON transports FOR INSERT WITH CHECK (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+CREATE POLICY transports_update ON transports FOR UPDATE USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid()
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+  )
+);
+
+CREATE POLICY transports_delete ON transports FOR DELETE USING (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+-- Transport Travelers (references transports → trips)
+CREATE POLICY transport_travelers_select ON transport_travelers FOR SELECT USING (
+  transport_id IN (
+    SELECT id FROM transports WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+      UNION
+      SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+    )
+  )
+);
+
+CREATE POLICY transport_travelers_insert ON transport_travelers FOR INSERT WITH CHECK (
+  transport_id IN (
+    SELECT id FROM transports WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+    )
+  )
+);
+
+CREATE POLICY transport_travelers_update ON transport_travelers FOR UPDATE USING (
+  transport_id IN (
+    SELECT id FROM transports WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+      UNION
+      SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+    )
+  )
+);
+
+CREATE POLICY transport_travelers_delete ON transport_travelers FOR DELETE USING (
+  transport_id IN (
+    SELECT id FROM transports WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+    )
+  )
+);
+
+-- Reservations
+CREATE POLICY reservations_select ON reservations FOR SELECT USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+  )
+);
+
+CREATE POLICY reservations_insert ON reservations FOR INSERT WITH CHECK (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+CREATE POLICY reservations_update ON reservations FOR UPDATE USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid()
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+  )
+);
+
+CREATE POLICY reservations_delete ON reservations FOR DELETE USING (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+-- Budget Items
+CREATE POLICY budget_items_select ON budget_items FOR SELECT USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+  )
+);
+
+CREATE POLICY budget_items_insert ON budget_items FOR INSERT WITH CHECK (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+CREATE POLICY budget_items_update ON budget_items FOR UPDATE USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid()
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+  )
+);
+
+CREATE POLICY budget_items_delete ON budget_items FOR DELETE USING (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+-- Files
+CREATE POLICY files_select ON files FOR SELECT USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+  )
+);
+
+CREATE POLICY files_insert ON files FOR INSERT WITH CHECK (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+CREATE POLICY files_update ON files FOR UPDATE USING (
+  trip_id IN (
+    SELECT id FROM trips WHERE created_by = auth.uid()
+    UNION
+    SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+  )
+);
+
+CREATE POLICY files_delete ON files FOR DELETE USING (
+  trip_id IN (SELECT id FROM trips WHERE created_by = auth.uid())
+);
+
+-- Notes (references days → trips)
+CREATE POLICY notes_select ON notes FOR SELECT USING (
+  day_id IN (
+    SELECT id FROM days WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid() OR is_public = TRUE
+      UNION
+      SELECT trip_id FROM travelers WHERE user_id = auth.uid()
+    )
+  )
+);
+
+CREATE POLICY notes_insert ON notes FOR INSERT WITH CHECK (
+  day_id IN (
+    SELECT id FROM days WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+    )
+  )
+);
+
+CREATE POLICY notes_update ON notes FOR UPDATE USING (
+  day_id IN (
+    SELECT id FROM days WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+      UNION
+      SELECT trip_id FROM travelers WHERE user_id = auth.uid() AND role IN ('owner', 'editor')
+    )
+  )
+);
+
+CREATE POLICY notes_delete ON notes FOR DELETE USING (
+  day_id IN (
+    SELECT id FROM days WHERE trip_id IN (
+      SELECT id FROM trips WHERE created_by = auth.uid()
+    )
+  )
+);
 
 -- ============================================================================
 -- VIEWS

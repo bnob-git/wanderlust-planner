@@ -85,7 +85,11 @@ export default function NewTripPage() {
     } catch (error) {
       console.error("Failed to create trip:", error);
       const message =
-        error instanceof Error ? error.message : "Unknown error";
+        error instanceof Error
+          ? error.message
+          : typeof error === "object" && error !== null && "message" in error
+            ? (error as { message: string }).message
+            : "Unknown error";
       setErrorMessage(message);
     }
   };

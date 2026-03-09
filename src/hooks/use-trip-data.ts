@@ -380,8 +380,29 @@ export function useTripsListQuery() {
     queryKey: ["trips-list"],
     queryFn: async () => {
       const supabase = getSupabase();
-      const { data, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      let query = supabase
         .from("trips").select("*").order("start_date", { ascending: false });
+      if (user) {
+        // Filter to user's own trips or trips shared with them.
+        // RLS should also enforce this, but explicit filtering
+        // provides defense-in-depth.
+        const { data: travelerRows } = await supabase
+          .from("travelers")
+          .select("trip_id")
+          .eq("user_id", user.id);
+        const sharedTripIds = (travelerRows || []).map(
+          (r: { trip_id: string }) => r.trip_id
+        );
+        if (sharedTripIds.length > 0) {
+          query = query.or(
+            `created_by.eq.${user.id},is_public.eq.true,id.in.(${sharedTripIds.join(",")})`
+          );
+        } else {
+          query = query.or(`created_by.eq.${user.id},is_public.eq.true`);
+        }
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return (data || []).map((row: unknown) => {
         const dbTrip = row as DbTrip;
