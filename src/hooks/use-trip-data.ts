@@ -380,8 +380,15 @@ export function useTripsListQuery() {
     queryKey: ["trips-list"],
     queryFn: async () => {
       const supabase = getSupabase();
-      const { data, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      let query = supabase
         .from("trips").select("*").order("start_date", { ascending: false });
+      if (user) {
+        // Filter to user's own trips. RLS should also enforce this,
+        // but explicit filtering provides defense-in-depth.
+        query = query.or(`created_by.eq.${user.id},is_public.eq.true`);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return (data || []).map((row: unknown) => {
         const dbTrip = row as DbTrip;
