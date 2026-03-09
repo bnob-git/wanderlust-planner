@@ -20,6 +20,7 @@ export default function NewTripPage() {
   const [endDate, setEndDate] = useState("");
   const [budgetAmount, setBudgetAmount] = useState("");
   const [budgetCurrency, setBudgetCurrency] = useState("EUR");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +82,9 @@ export default function NewTripPage() {
       }
     } catch (error) {
       console.error("Failed to create trip:", error);
+      const message =
+        error instanceof Error ? error.message : "Unknown error";
+      setErrorMessage(message);
     }
   };
 
@@ -204,9 +208,9 @@ export default function NewTripPage() {
               </Button>
             </div>
 
-            {createTrip.isError && (
+            {(createTrip.isError || errorMessage) && (
               <p className="text-sm text-destructive">
-                Failed to create trip. Please check your Supabase connection and try again.
+                {errorMessage || "Failed to create trip. Please check your Supabase connection and try again."}
               </p>
             )}
           </form>

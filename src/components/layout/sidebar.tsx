@@ -113,9 +113,11 @@ export function Sidebar() {
         <Button
           variant="ghost"
           className={cn(
-            "w-full justify-start gap-3",
+            "w-full justify-start gap-3 opacity-50 cursor-not-allowed",
             collapsed && "justify-center px-2"
           )}
+          disabled
+          title="Settings coming soon"
         >
           <Settings className="h-5 w-5" />
           {!collapsed && <span>Settings</span>}
