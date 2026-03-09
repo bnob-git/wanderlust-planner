@@ -3,8 +3,9 @@
 import { cn } from "@/lib/utils";
 import { useTripDataStore } from "@/store/trip-data-store";
 import { useTripId } from "@/hooks/use-trip-id";
+import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Calendar,
@@ -16,6 +17,7 @@ import {
   Globe,
   Users,
   Home,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -38,8 +40,20 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { trip } = useTripDataStore();
   const pathname = usePathname();
+  const router = useRouter();
   const tripId = useTripId();
   const currentTripId = tripId || trip?.id;
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/login");
+      router.refresh();
+    } catch (err) {
+      console.error("Failed to sign out:", err);
+    }
+  };
 
   return (
     <aside
@@ -109,7 +123,7 @@ export function Sidebar() {
         )}
       </nav>
 
-      <div className="border-t p-2">
+      <div className="border-t p-2 space-y-1">
         <Button
           variant="ghost"
           className={cn(
@@ -121,6 +135,18 @@ export function Sidebar() {
         >
           <Settings className="h-5 w-5" />
           {!collapsed && <span>Settings</span>}
+        </Button>
+        <Button
+          variant="ghost"
+          className={cn(
+            "w-full justify-start gap-3 text-muted-foreground hover:text-destructive",
+            collapsed && "justify-center px-2"
+          )}
+          onClick={handleLogout}
+          title="Sign out"
+        >
+          <LogOut className="h-5 w-5" />
+          {!collapsed && <span>Sign Out</span>}
         </Button>
       </div>
 
