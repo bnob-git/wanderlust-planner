@@ -30,7 +30,34 @@ export async function middleware(request: NextRequest) {
   });
 
   // Refresh the auth session
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isLoginPage = request.nextUrl.pathname === "/login";
+  const isAuthCallback = request.nextUrl.pathname.startsWith("/auth/");
+
+  // If user is not authenticated and not on login/auth pages, redirect to login
+  if (!user && !isLoginPage && !isAuthCallback) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+      redirectResponse.cookies.set(name, value, options);
+    });
+    return redirectResponse;
+  }
+
+  // If user is authenticated and on the login page, redirect to home
+  if (user && isLoginPage) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+      redirectResponse.cookies.set(name, value, options);
+    });
+    return redirectResponse;
+  }
 
   return supabaseResponse;
 }

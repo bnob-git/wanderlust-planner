@@ -73,7 +73,13 @@ export function useCreateTrip() {
         throw new Error("Supabase not configured");
       }
       const supabase = getSupabase();
+      // Get authenticated user for RLS policy compliance
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("You must be signed in to create a trip");
+      }
       const dbData = tripToDbTrip(trip);
+      (dbData as Record<string, unknown>).created_by = user.id;
       const { data, error } = await supabase
         .from("trips")
         .insert(dbData)

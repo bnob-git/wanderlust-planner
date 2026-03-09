@@ -193,7 +193,13 @@ export function CommandCenter() {
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow">
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => {
+            const el = document.getElementById("action-items-section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -266,7 +272,7 @@ export function CommandCenter() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div id="action-items-section" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
