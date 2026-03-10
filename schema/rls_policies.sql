@@ -194,6 +194,33 @@ CREATE POLICY "Allow all access to travelers" ON travelers
   FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================================================
+-- Neighborhoods
+-- ============================================================================
+ALTER TABLE neighborhoods ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow all access to neighborhoods" ON neighborhoods;
+CREATE POLICY "Allow all access to neighborhoods" ON neighborhoods
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- ============================================================================
+-- Files
+-- ============================================================================
+ALTER TABLE files ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow all access to files" ON files;
+CREATE POLICY "Allow all access to files" ON files
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- ============================================================================
+-- Notes
+-- ============================================================================
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow all access to notes" ON notes;
+CREATE POLICY "Allow all access to notes" ON notes
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- ============================================================================
 -- Parties (from migration 001)
 -- ============================================================================
 -- Policies already created in 001_add_parties.sql
