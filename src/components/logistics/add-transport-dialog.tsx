@@ -123,39 +123,47 @@ export function AddTransportDialog({ open, onOpenChange }: AddTransportDialogPro
     const arrDate = arrDateTime ? new Date(arrDateTime) : new Date(depDate.getTime() + 60 * 60 * 1000);
     const durationMinutes = Math.round((arrDate.getTime() - depDate.getTime()) / 60000);
 
-    createTransport.mutate({
-      tripId: trip.id,
-      type,
-      carrier: carrier || undefined,
-      flightNumber: type === "flight" ? flightNumber || undefined : undefined,
-      trainNumber: type === "train" ? flightNumber || undefined : undefined,
-      departure: {
-        location: { name: depLocation },
-        dateTime: depDate.toISOString(),
-        terminal: depTerminal || undefined,
-        gate: depGate || undefined,
+    createTransport.mutate(
+      {
+        tripId: trip.id,
+        type,
+        carrier: carrier || undefined,
+        flightNumber: type === "flight" ? flightNumber || undefined : undefined,
+        trainNumber: type === "train" ? flightNumber || undefined : undefined,
+        departure: {
+          location: { name: depLocation },
+          dateTime: depDate.toISOString(),
+          terminal: depTerminal || undefined,
+          gate: depGate || undefined,
+        },
+        arrival: {
+          location: { name: arrLocation },
+          dateTime: arrDate.toISOString(),
+          terminal: arrTerminal || undefined,
+        },
+        durationMinutes: Math.max(0, durationMinutes),
+        status,
+        confirmationNumber: confirmationNumber || undefined,
+        bookingReference: bookingRef || undefined,
+        bookingUrl: bookingUrl || undefined,
+        class: travelClass || undefined,
+        totalCost: {
+          amount: parseFloat(costAmount) || 0,
+          currency: costCurrency,
+        },
+        travelerIds: selectedTravelerIds,
+        notes: notes || undefined,
       },
-      arrival: {
-        location: { name: arrLocation },
-        dateTime: arrDate.toISOString(),
-        terminal: arrTerminal || undefined,
-      },
-      durationMinutes: Math.max(0, durationMinutes),
-      status,
-      confirmationNumber: confirmationNumber || undefined,
-      bookingReference: bookingRef || undefined,
-      bookingUrl: bookingUrl || undefined,
-      class: travelClass || undefined,
-      totalCost: {
-        amount: parseFloat(costAmount) || 0,
-        currency: costCurrency,
-      },
-      travelerIds: selectedTravelerIds,
-      notes: notes || undefined,
-    });
-
-    resetForm();
-    onOpenChange(false);
+      {
+        onSuccess: () => {
+          resetForm();
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          console.error("Failed to add transport:", error);
+        },
+      }
+    );
   };
 
   return (

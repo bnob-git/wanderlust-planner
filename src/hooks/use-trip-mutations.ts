@@ -693,10 +693,38 @@ export function useDeleteLodging() {
 
 export function useCreateTransport() {
   const queryClient = useQueryClient();
+  const setTransports = useTripDataStore((s) => s.setTransports);
 
   return useMutation({
     mutationFn: async (transport: Partial<Transport> & { tripId: string }) => {
-      if (!hasSupabase) throw new Error("Supabase not configured");
+      // Optimistic local update — transport appears in UI immediately
+      const now = new Date().toISOString();
+      const localTransport: Transport = {
+        id: crypto.randomUUID(),
+        createdAt: now,
+        updatedAt: now,
+        createdBy: "",
+        tripId: transport.tripId,
+        type: transport.type || "flight",
+        carrier: transport.carrier,
+        flightNumber: transport.flightNumber,
+        trainNumber: transport.trainNumber,
+        departure: transport.departure || { location: { name: "" }, dateTime: now },
+        arrival: transport.arrival || { location: { name: "" }, dateTime: now },
+        durationMinutes: transport.durationMinutes || 0,
+        status: transport.status || "planned",
+        confirmationNumber: transport.confirmationNumber,
+        bookingReference: transport.bookingReference,
+        bookingUrl: transport.bookingUrl,
+        class: transport.class,
+        totalCost: transport.totalCost || { amount: 0, currency: "EUR" },
+        travelerIds: transport.travelerIds || [],
+        notes: transport.notes,
+      };
+      const currentTransports = useTripDataStore.getState().transports;
+      setTransports([...currentTransports, localTransport]);
+
+      if (!hasSupabase) return;
       const supabase = getSupabase();
       const travelerIds = transport.travelerIds || [];
       const dbData = transportToDbTransport(transport);
@@ -718,7 +746,9 @@ export function useCreateTransport() {
       return dbTransportToTransport(data as unknown as DbTransport);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["transports", variables.tripId] });
+      if (hasSupabase) {
+        queryClient.invalidateQueries({ queryKey: ["transports", variables.tripId] });
+      }
     },
   });
 }
