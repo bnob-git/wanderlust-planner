@@ -134,10 +134,83 @@ export function useUpdateTrip() {
 
 export function useCreateCity() {
   const queryClient = useQueryClient();
+  const setCities = useTripDataStore((s) => s.setCities);
+  const setDays = useTripDataStore((s) => s.setDays);
 
   return useMutation({
+    onMutate: async (city: Partial<City> & { tripId: string }) => {
+      // Cancel outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ["cities", city.tripId] });
+      await queryClient.cancelQueries({ queryKey: ["days", city.tripId] });
+
+      // Snapshot previous state for rollback
+      const previousCities = useTripDataStore.getState().cities;
+      const previousDays = useTripDataStore.getState().days;
+
+      // Build a local City object for immediate optimistic update
+      const now = new Date().toISOString();
+      const cityId = crypto.randomUUID();
+      const localCity: City = {
+        id: cityId,
+        createdAt: now,
+        updatedAt: now,
+        createdBy: "",
+        tripId: city.tripId,
+        name: city.name || "",
+        country: city.country || "",
+        region: city.region,
+        timezone: city.timezone || "UTC",
+        dateRange: city.dateRange || { start: "", end: "" },
+        order: city.order ?? 0,
+        location: city.location || { name: city.name || "" },
+        neighborhoodIds: [],
+        dayIds: [],
+      };
+
+      // Build local Day objects for the date range
+      const localDays: Day[] = [];
+      if (city.dateRange) {
+        const start = new Date(city.dateRange.start + "T00:00:00");
+        const end = new Date(city.dateRange.end + "T00:00:00");
+        let dayNumber = 1;
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          const dayId = crypto.randomUUID();
+          const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          localDays.push({
+            id: dayId,
+            createdAt: now,
+            updatedAt: now,
+            createdBy: "",
+            tripId: city.tripId,
+            cityId: cityId,
+            dayNumber: dayNumber++,
+            date: dateStr,
+            dayOfWeek: d.toLocaleDateString("en-US", { weekday: "long" }),
+            status: "draft",
+            timeBlocks: [
+              { id: `${dayId}_morning`, type: "morning", timeRange: { start: "08:00", end: "13:00" }, activityIds: [] },
+              { id: `${dayId}_afternoon`, type: "afternoon", timeRange: { start: "13:00", end: "19:00" }, activityIds: [] },
+              { id: `${dayId}_evening`, type: "evening", timeRange: { start: "19:00", end: "23:00" }, activityIds: [] },
+            ],
+            notes: [],
+            budgetEstimate: { amount: 0, currency: "EUR" },
+          });
+        }
+        localCity.dayIds = localDays.map((ld) => ld.id);
+      }
+
+      // Apply optimistic update — city appears in UI immediately
+      setCities([...previousCities, localCity]);
+      if (localDays.length > 0) {
+        setDays([...previousDays, ...localDays]);
+      }
+
+      return { previousCities, previousDays };
+    },
     mutationFn: async (city: Partial<City> & { tripId: string }) => {
-      if (!hasSupabase) throw new Error("Supabase not configured");
+      // Persist to Supabase if configured; local-only mode skips this
+      if (!hasSupabase) return;
+
       const supabase = getSupabase();
       const dbData = cityToDbCity(city);
       const { data, error } = await supabase
@@ -148,10 +221,10 @@ export function useCreateCity() {
       if (error) throw error;
       const created = dbCityToCity(data as unknown as DbCity, [], []);
 
-      // Auto-generate days for the city date range
+      // Auto-generate days for the city date range in DB
       if (city.dateRange) {
-        const start = new Date(city.dateRange.start);
-        const end = new Date(city.dateRange.end);
+        const start = new Date(city.dateRange.start + "T00:00:00");
+        const end = new Date(city.dateRange.end + "T00:00:00");
         let dayNumber = 1;
         const dayInserts = [];
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
@@ -159,7 +232,7 @@ export function useCreateCity() {
             trip_id: city.tripId,
             city_id: created.id,
             day_number: dayNumber++,
-            date: d.toISOString().split("T")[0],
+            date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
             status: "draft",
             budget_estimate_amount: 0,
             budget_estimate_currency: "EUR",
@@ -170,7 +243,6 @@ export function useCreateCity() {
             .from("days")
             .insert(dayInserts)
             .select();
-          // Create time blocks for each day
           if (days) {
             const timeBlockInserts = [];
             for (const day of days) {
@@ -185,12 +257,22 @@ export function useCreateCity() {
           }
         }
       }
-      return created;
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["cities", variables.tripId] });
-      queryClient.invalidateQueries({ queryKey: ["days", variables.tripId] });
-      queryClient.invalidateQueries({ queryKey: ["trip"] });
+    onError: (error, _variables, context) => {
+      // Roll back to previous state on failure
+      console.error("City creation failed:", error);
+      if (context) {
+        setCities(context.previousCities);
+        setDays(context.previousDays);
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch fresh data from DB after mutation completes (success or error)
+      if (hasSupabase) {
+        queryClient.invalidateQueries({ queryKey: ["cities", variables.tripId] });
+        queryClient.invalidateQueries({ queryKey: ["days", variables.tripId] });
+        queryClient.invalidateQueries({ queryKey: ["trip"] });
+      }
     },
   });
 }
@@ -611,10 +693,49 @@ export function useDeleteLodging() {
 
 export function useCreateTransport() {
   const queryClient = useQueryClient();
+  const setTransports = useTripDataStore((s) => s.setTransports);
 
   return useMutation({
+    onMutate: async (transport: Partial<Transport> & { tripId: string }) => {
+      // Cancel outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ["transports", transport.tripId] });
+
+      // Snapshot previous state for rollback
+      const previousTransports = useTripDataStore.getState().transports;
+
+      // Build a local Transport object for immediate optimistic update
+      const now = new Date().toISOString();
+      const localTransport: Transport = {
+        id: crypto.randomUUID(),
+        createdAt: now,
+        updatedAt: now,
+        createdBy: "",
+        tripId: transport.tripId,
+        type: transport.type || "flight",
+        carrier: transport.carrier,
+        flightNumber: transport.flightNumber,
+        trainNumber: transport.trainNumber,
+        departure: transport.departure || { location: { name: "" }, dateTime: now },
+        arrival: transport.arrival || { location: { name: "" }, dateTime: now },
+        durationMinutes: transport.durationMinutes || 0,
+        status: transport.status || "planned",
+        confirmationNumber: transport.confirmationNumber,
+        bookingReference: transport.bookingReference,
+        bookingUrl: transport.bookingUrl,
+        class: transport.class,
+        totalCost: transport.totalCost || { amount: 0, currency: "EUR" },
+        travelerIds: transport.travelerIds || [],
+        notes: transport.notes,
+      };
+
+      // Apply optimistic update — transport appears in UI immediately
+      setTransports([...previousTransports, localTransport]);
+
+      return { previousTransports };
+    },
     mutationFn: async (transport: Partial<Transport> & { tripId: string }) => {
-      if (!hasSupabase) throw new Error("Supabase not configured");
+      // Persist to Supabase if configured; local-only mode skips this
+      if (!hasSupabase) return;
       const supabase = getSupabase();
       const travelerIds = transport.travelerIds || [];
       const dbData = transportToDbTransport(transport);
@@ -635,8 +756,18 @@ export function useCreateTransport() {
       }
       return dbTransportToTransport(data as unknown as DbTransport);
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["transports", variables.tripId] });
+    onError: (error, _variables, context) => {
+      // Roll back to previous state on failure
+      console.error("Transport creation failed:", error);
+      if (context) {
+        setTransports(context.previousTransports);
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch fresh data from DB after mutation completes (success or error)
+      if (hasSupabase) {
+        queryClient.invalidateQueries({ queryKey: ["transports", variables.tripId] });
+      }
     },
   });
 }

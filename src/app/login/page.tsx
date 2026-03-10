@@ -57,7 +57,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8 p-8">
         <div className="flex flex-col items-center gap-2">
           <Globe className="h-12 w-12 text-primary" />
-          <h1 className="text-2xl font-bold">Wanderlust Planner</h1>
+          <h1 className="text-2xl font-bold">Plan It</h1>
           <p className="text-sm text-muted-foreground">
             {isSignUp ? "Create your account" : "Sign in to your account"}
           </p>
