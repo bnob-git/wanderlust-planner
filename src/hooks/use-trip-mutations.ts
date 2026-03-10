@@ -696,8 +696,14 @@ export function useCreateTransport() {
   const setTransports = useTripDataStore((s) => s.setTransports);
 
   return useMutation({
-    mutationFn: async (transport: Partial<Transport> & { tripId: string }) => {
-      // Optimistic local update — transport appears in UI immediately
+    onMutate: async (transport: Partial<Transport> & { tripId: string }) => {
+      // Cancel outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ["transports", transport.tripId] });
+
+      // Snapshot previous state for rollback
+      const previousTransports = useTripDataStore.getState().transports;
+
+      // Build a local Transport object for immediate optimistic update
       const now = new Date().toISOString();
       const localTransport: Transport = {
         id: crypto.randomUUID(),
@@ -721,9 +727,14 @@ export function useCreateTransport() {
         travelerIds: transport.travelerIds || [],
         notes: transport.notes,
       };
-      const currentTransports = useTripDataStore.getState().transports;
-      setTransports([...currentTransports, localTransport]);
 
+      // Apply optimistic update — transport appears in UI immediately
+      setTransports([...previousTransports, localTransport]);
+
+      return { previousTransports };
+    },
+    mutationFn: async (transport: Partial<Transport> & { tripId: string }) => {
+      // Persist to Supabase if configured; local-only mode skips this
       if (!hasSupabase) return;
       const supabase = getSupabase();
       const travelerIds = transport.travelerIds || [];
@@ -745,7 +756,15 @@ export function useCreateTransport() {
       }
       return dbTransportToTransport(data as unknown as DbTransport);
     },
-    onSuccess: (_, variables) => {
+    onError: (error, _variables, context) => {
+      // Roll back to previous state on failure
+      console.error("Transport creation failed:", error);
+      if (context) {
+        setTransports(context.previousTransports);
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch fresh data from DB after mutation completes (success or error)
       if (hasSupabase) {
         queryClient.invalidateQueries({ queryKey: ["transports", variables.tripId] });
       }

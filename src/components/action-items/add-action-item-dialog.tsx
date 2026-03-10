@@ -99,9 +99,18 @@ export function AddActionItemDialog({ open, onOpenChange }: AddActionItemDialogP
       status: "pending",
     };
 
-    addActionItem.mutate({ ...item, tripId: trip?.id } as Parameters<typeof addActionItem.mutate>[0]);
-    resetForm();
-    onOpenChange(false);
+    addActionItem.mutate(
+      { ...item, tripId: trip?.id } as Parameters<typeof addActionItem.mutate>[0],
+      {
+        onSuccess: () => {
+          resetForm();
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          console.error("Failed to add action item:", error);
+        },
+      }
+    );
   };
 
   return (
