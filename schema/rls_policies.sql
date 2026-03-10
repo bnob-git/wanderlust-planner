@@ -2,16 +2,97 @@
 -- MVP: Permissive policies allowing all operations via anon key
 -- TODO: Replace with proper auth-based policies when authentication is added
 --
--- Future auth-based policy helper function (commented out for now):
--- CREATE OR REPLACE FUNCTION user_has_trip_access(trip_uuid UUID)
--- RETURNS BOOLEAN AS $$
---   SELECT EXISTS (
---     SELECT 1 FROM travelers
---     WHERE trip_id = trip_uuid
---     AND user_id = auth.uid()
---     AND role IN ('owner', 'editor')
---   );
--- $$ LANGUAGE sql SECURITY DEFINER;
+-- Auth-based policy helper function (also defined in database.sql):
+CREATE OR REPLACE FUNCTION user_has_trip_access(trip_uuid UUID)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM travelers
+    WHERE trip_id = trip_uuid
+    AND user_id = auth.uid()
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
+
+-- ============================================================================
+-- Drop auth-based policies from database.sql to prevent conflicts
+-- ============================================================================
+
+-- Trips
+DROP POLICY IF EXISTS trips_select ON trips;
+DROP POLICY IF EXISTS trips_insert ON trips;
+DROP POLICY IF EXISTS trips_update ON trips;
+DROP POLICY IF EXISTS trips_delete ON trips;
+
+-- Travelers
+DROP POLICY IF EXISTS travelers_select ON travelers;
+DROP POLICY IF EXISTS travelers_insert ON travelers;
+DROP POLICY IF EXISTS travelers_update ON travelers;
+DROP POLICY IF EXISTS travelers_delete ON travelers;
+
+-- Cities
+DROP POLICY IF EXISTS cities_select ON cities;
+DROP POLICY IF EXISTS cities_insert ON cities;
+DROP POLICY IF EXISTS cities_update ON cities;
+DROP POLICY IF EXISTS cities_delete ON cities;
+
+-- Neighborhoods
+DROP POLICY IF EXISTS neighborhoods_select ON neighborhoods;
+DROP POLICY IF EXISTS neighborhoods_insert ON neighborhoods;
+DROP POLICY IF EXISTS neighborhoods_update ON neighborhoods;
+DROP POLICY IF EXISTS neighborhoods_delete ON neighborhoods;
+
+-- Days
+DROP POLICY IF EXISTS days_select ON days;
+DROP POLICY IF EXISTS days_insert ON days;
+DROP POLICY IF EXISTS days_update ON days;
+DROP POLICY IF EXISTS days_delete ON days;
+
+-- Time Blocks
+DROP POLICY IF EXISTS time_blocks_select ON time_blocks;
+DROP POLICY IF EXISTS time_blocks_insert ON time_blocks;
+DROP POLICY IF EXISTS time_blocks_update ON time_blocks;
+DROP POLICY IF EXISTS time_blocks_delete ON time_blocks;
+
+-- Activities
+DROP POLICY IF EXISTS activities_select ON activities;
+DROP POLICY IF EXISTS activities_insert ON activities;
+DROP POLICY IF EXISTS activities_update ON activities;
+DROP POLICY IF EXISTS activities_delete ON activities;
+
+-- Lodgings
+DROP POLICY IF EXISTS lodgings_select ON lodgings;
+DROP POLICY IF EXISTS lodgings_insert ON lodgings;
+DROP POLICY IF EXISTS lodgings_update ON lodgings;
+DROP POLICY IF EXISTS lodgings_delete ON lodgings;
+
+-- Transports
+DROP POLICY IF EXISTS transports_select ON transports;
+DROP POLICY IF EXISTS transports_insert ON transports;
+DROP POLICY IF EXISTS transports_update ON transports;
+DROP POLICY IF EXISTS transports_delete ON transports;
+
+-- Reservations
+DROP POLICY IF EXISTS reservations_select ON reservations;
+DROP POLICY IF EXISTS reservations_insert ON reservations;
+DROP POLICY IF EXISTS reservations_update ON reservations;
+DROP POLICY IF EXISTS reservations_delete ON reservations;
+
+-- Budget Items
+DROP POLICY IF EXISTS budget_items_select ON budget_items;
+DROP POLICY IF EXISTS budget_items_insert ON budget_items;
+DROP POLICY IF EXISTS budget_items_update ON budget_items;
+DROP POLICY IF EXISTS budget_items_delete ON budget_items;
+
+-- Files
+DROP POLICY IF EXISTS files_select ON files;
+DROP POLICY IF EXISTS files_insert ON files;
+DROP POLICY IF EXISTS files_update ON files;
+DROP POLICY IF EXISTS files_delete ON files;
+
+-- Notes
+DROP POLICY IF EXISTS notes_select ON notes;
+DROP POLICY IF EXISTS notes_insert ON notes;
+DROP POLICY IF EXISTS notes_update ON notes;
+DROP POLICY IF EXISTS notes_delete ON notes;
 
 -- ============================================================================
 -- Trips
