@@ -77,11 +77,24 @@ export function parseFlightString(input: string): Partial<FlightInfo> {
     parts.splice(dateIdx, 1);
   }
 
-  // Try to find flight number (2 letters + digits)
+  // Try to find flight number (2 letters + digits, possibly space-separated)
   const flightIdx = parts.findIndex((p) => /^[A-Z]{2}\d+$/i.test(p));
   if (flightIdx !== -1) {
     result.flightNumber = parts[flightIdx].toUpperCase();
     parts.splice(flightIdx, 1);
+  } else {
+    // Handle space-separated format like "BA 456"
+    const codeIdx = parts.findIndex((p) => /^[A-Z]{2}$/i.test(p));
+    if (codeIdx !== -1) {
+      const numIdx = parts.findIndex((p, i) => i !== codeIdx && /^\d+$/.test(p));
+      if (numIdx !== -1) {
+        result.flightNumber = (parts[codeIdx] + parts[numIdx]).toUpperCase();
+        // Remove both parts (higher index first to avoid shifting)
+        const [first, second] = codeIdx < numIdx ? [codeIdx, numIdx] : [numIdx, codeIdx];
+        parts.splice(second, 1);
+        parts.splice(first, 1);
+      }
+    }
   }
 
   // Remaining text is assumed to be the airline name
