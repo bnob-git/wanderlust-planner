@@ -138,11 +138,18 @@ export function useCreateCity() {
   const setDays = useTripDataStore((s) => s.setDays);
 
   return useMutation({
-    mutationFn: async (city: Partial<City> & { tripId: string }) => {
-      const now = new Date().toISOString();
-      const cityId = crypto.randomUUID();
+    onMutate: async (city: Partial<City> & { tripId: string }) => {
+      // Cancel outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ["cities", city.tripId] });
+      await queryClient.cancelQueries({ queryKey: ["days", city.tripId] });
+
+      // Snapshot previous state for rollback
+      const previousCities = useTripDataStore.getState().cities;
+      const previousDays = useTripDataStore.getState().days;
 
       // Build a local City object for immediate optimistic update
+      const now = new Date().toISOString();
+      const cityId = crypto.randomUUID();
       const localCity: City = {
         id: cityId,
         createdAt: now,
@@ -189,76 +196,83 @@ export function useCreateCity() {
             budgetEstimate: { amount: 0, currency: "EUR" },
           });
         }
-        localCity.dayIds = localDays.map((d) => d.id);
+        localCity.dayIds = localDays.map((ld) => ld.id);
       }
 
-      // Optimistic local update — city appears in UI immediately
-      const currentCities = useTripDataStore.getState().cities;
-      setCities([...currentCities, localCity]);
+      // Apply optimistic update — city appears in UI immediately
+      setCities([...previousCities, localCity]);
       if (localDays.length > 0) {
-        const currentDays = useTripDataStore.getState().days;
-        setDays([...currentDays, ...localDays]);
+        setDays([...previousDays, ...localDays]);
       }
 
-      // Persist to Supabase if configured
+      return { previousCities, previousDays };
+    },
+    mutationFn: async (city: Partial<City> & { tripId: string }) => {
+      // Persist to Supabase if configured; local-only mode skips this
       if (!hasSupabase) return;
-      try {
-        const supabase = getSupabase();
-        const dbData = cityToDbCity(city);
-        const { data, error } = await supabase
-          .from("cities")
-          .insert(dbData)
-          .select()
-          .single();
-        if (error) throw error;
-        const created = dbCityToCity(data as unknown as DbCity, [], []);
 
-        // Auto-generate days for the city date range in DB
-        if (city.dateRange) {
-          const start = new Date(city.dateRange.start + "T00:00:00");
-          const end = new Date(city.dateRange.end + "T00:00:00");
-          let dayNumber = 1;
-          const dayInserts = [];
-          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            dayInserts.push({
-              trip_id: city.tripId,
-              city_id: created.id,
-              day_number: dayNumber++,
-              date: d.toISOString().split("T")[0],
-              status: "draft",
-              budget_estimate_amount: 0,
-              budget_estimate_currency: "EUR",
-            });
-          }
-          if (dayInserts.length > 0) {
-            const { data: days } = await supabase
-              .from("days")
-              .insert(dayInserts)
-              .select();
-            if (days) {
-              const timeBlockInserts = [];
-              for (const day of days) {
-                const dayTyped = day as { id: string };
-                timeBlockInserts.push(
-                  { day_id: dayTyped.id, type: "morning", start_time: "08:00", end_time: "13:00" },
-                  { day_id: dayTyped.id, type: "afternoon", start_time: "13:00", end_time: "19:00" },
-                  { day_id: dayTyped.id, type: "evening", start_time: "19:00", end_time: "23:00" }
-                );
-              }
-              await supabase.from("time_blocks").insert(timeBlockInserts);
+      const supabase = getSupabase();
+      const dbData = cityToDbCity(city);
+      const { data, error } = await supabase
+        .from("cities")
+        .insert(dbData)
+        .select()
+        .single();
+      if (error) throw error;
+      const created = dbCityToCity(data as unknown as DbCity, [], []);
+
+      // Auto-generate days for the city date range in DB
+      if (city.dateRange) {
+        const start = new Date(city.dateRange.start + "T00:00:00");
+        const end = new Date(city.dateRange.end + "T00:00:00");
+        let dayNumber = 1;
+        const dayInserts = [];
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          dayInserts.push({
+            trip_id: city.tripId,
+            city_id: created.id,
+            day_number: dayNumber++,
+            date: d.toISOString().split("T")[0],
+            status: "draft",
+            budget_estimate_amount: 0,
+            budget_estimate_currency: "EUR",
+          });
+        }
+        if (dayInserts.length > 0) {
+          const { data: days } = await supabase
+            .from("days")
+            .insert(dayInserts)
+            .select();
+          if (days) {
+            const timeBlockInserts = [];
+            for (const day of days) {
+              const dayTyped = day as { id: string };
+              timeBlockInserts.push(
+                { day_id: dayTyped.id, type: "morning", start_time: "08:00", end_time: "13:00" },
+                { day_id: dayTyped.id, type: "afternoon", start_time: "13:00", end_time: "19:00" },
+                { day_id: dayTyped.id, type: "evening", start_time: "19:00", end_time: "23:00" }
+              );
             }
+            await supabase.from("time_blocks").insert(timeBlockInserts);
           }
         }
-      } catch (err) {
-        console.error("Failed to persist city to Supabase:", err);
-        // City is still visible locally via optimistic update
       }
     },
-    onSuccess: (_, variables) => {
-      // Invalidate queries so React Query refetches fresh data from DB
-      queryClient.invalidateQueries({ queryKey: ["cities", variables.tripId] });
-      queryClient.invalidateQueries({ queryKey: ["days", variables.tripId] });
-      queryClient.invalidateQueries({ queryKey: ["trip"] });
+    onError: (error, _variables, context) => {
+      // Roll back to previous state on failure
+      console.error("City creation failed:", error);
+      if (context) {
+        setCities(context.previousCities);
+        setDays(context.previousDays);
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch fresh data from DB after mutation completes (success or error)
+      if (hasSupabase) {
+        queryClient.invalidateQueries({ queryKey: ["cities", variables.tripId] });
+        queryClient.invalidateQueries({ queryKey: ["days", variables.tripId] });
+        queryClient.invalidateQueries({ queryKey: ["trip"] });
+      }
     },
   });
 }
