@@ -7,6 +7,7 @@ import {
   useDeleteTransport,
   useDeleteReservation,
 } from "@/hooks/use-trip-mutations";
+import { AddTransportDialog } from "@/components/logistics/add-transport-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,6 +41,7 @@ import {
   Copy,
   CheckCircle,
   Trash2,
+  Plus,
 } from "lucide-react";
 
 function TransportCard({ transport, onDelete }: { transport: Transport; onDelete?: (id: string) => void }) {
@@ -565,6 +567,7 @@ export function LogisticsView() {
   const deleteTransport = useDeleteTransport();
   const deleteReservation = useDeleteReservation();
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: string; id: string } | null>(null);
+  const [isAddTransportOpen, setIsAddTransportOpen] = useState(false);
 
   const handleDelete = () => {
     if (!deleteConfirm || !trip) return;
@@ -583,11 +586,17 @@ export function LogisticsView() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Logistics & Bookings</h1>
-        <p className="text-muted-foreground">
-          All your travel arrangements in one place
-        </p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Logistics & Bookings</h1>
+          <p className="text-muted-foreground">
+            All your travel arrangements in one place
+          </p>
+        </div>
+        <Button onClick={() => setIsAddTransportOpen(true)} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Add Transport
+        </Button>
       </div>
 
       <Tabs defaultValue="transport" className="space-y-4">
@@ -662,6 +671,8 @@ export function LogisticsView() {
           ))}
         </TabsContent>
       </Tabs>
+
+      <AddTransportDialog open={isAddTransportOpen} onOpenChange={setIsAddTransportOpen} />
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>

@@ -18,6 +18,7 @@ import {
   Users,
   Home,
   LogOut,
+  CheckSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -33,6 +34,7 @@ const tripNavItems = [
   { id: "itinerary", label: "Day-by-Day", icon: ListTodo, path: "itinerary" },
   { id: "parties", label: "Parties", icon: Users, path: "parties" },
   { id: "logistics", label: "Logistics", icon: Plane, path: "logistics" },
+  { id: "tasks", label: "Tasks", icon: CheckSquare, path: "tasks" },
   { id: "budget", label: "Budget", icon: Wallet, path: "budget" },
 ];
 
@@ -66,7 +68,7 @@ export function Sidebar() {
         {!collapsed && (
           <div className="flex items-center gap-2">
             <Globe className="h-6 w-6 text-primary" />
-            <span className="font-semibold text-lg">Wanderlust</span>
+            <span className="font-semibold text-lg">Plan It</span>
           </div>
         )}
         {collapsed && <Globe className="h-6 w-6 text-primary mx-auto" />}

@@ -19,6 +19,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { StatusPill } from "@/components/status-pill";
+import { AddActionItemDialog } from "@/components/action-items/add-action-item-dialog";
 import { formatCurrency, formatDate, calculateDaysBetween } from "@/lib/utils";
 import {
   MapPin,
@@ -32,6 +33,7 @@ import {
   Train,
   Hotel,
   Pencil,
+  Plus,
 } from "lucide-react";
 
 export function CommandCenter() {
@@ -49,6 +51,7 @@ export function CommandCenter() {
   const updateTrip = useUpdateTrip();
 
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editStartDate, setEditStartDate] = useState("");
@@ -280,9 +283,15 @@ export function CommandCenter() {
                 <AlertTriangle className="h-5 w-5 text-yellow-500" />
                 Action Required
               </CardTitle>
-              <span className="text-sm text-muted-foreground">
-                {pendingItems.length} items
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {pendingItems.length} items
+                </span>
+                <Button variant="outline" size="sm" onClick={() => setIsAddTaskOpen(true)} className="gap-1">
+                  <Plus className="h-3.5 w-3.5" />
+                  Add
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -450,6 +459,8 @@ export function CommandCenter() {
           </div>
         </CardContent>
       </Card>
+      <AddActionItemDialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen} />
+
       {/* Edit Trip Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent>

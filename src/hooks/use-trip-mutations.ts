@@ -134,6 +134,8 @@ export function useUpdateTrip() {
 
 export function useCreateCity() {
   const queryClient = useQueryClient();
+  const setCities = useTripDataStore((s) => s.setCities);
+  const setDays = useTripDataStore((s) => s.setDays);
 
   return useMutation({
     mutationFn: async (city: Partial<City> & { tripId: string }) => {
@@ -149,6 +151,7 @@ export function useCreateCity() {
       const created = dbCityToCity(data as unknown as DbCity, [], []);
 
       // Auto-generate days for the city date range
+      const createdDays: Day[] = [];
       if (city.dateRange) {
         const start = new Date(city.dateRange.start);
         const end = new Date(city.dateRange.end);
@@ -182,12 +185,27 @@ export function useCreateCity() {
               );
             }
             await supabase.from("time_blocks").insert(timeBlockInserts);
+
+            // Transform days to app types for optimistic update
+            for (const day of days) {
+              createdDays.push(dbDayToDay(day as unknown as DbDay));
+            }
           }
         }
       }
-      return created;
+      return { city: created, days: createdDays };
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (result, variables) => {
+      // Optimistically update the Zustand store so the city appears in UI immediately
+      const currentCities = useTripDataStore.getState().cities;
+      setCities([...currentCities, result.city]);
+
+      if (result.days.length > 0) {
+        const currentDays = useTripDataStore.getState().days;
+        setDays([...currentDays, ...result.days]);
+      }
+
+      // Also invalidate queries so React Query refetches fresh data
       queryClient.invalidateQueries({ queryKey: ["cities", variables.tripId] });
       queryClient.invalidateQueries({ queryKey: ["days", variables.tripId] });
       queryClient.invalidateQueries({ queryKey: ["trip"] });

@@ -33,7 +33,7 @@ export function Header() {
     <header className="flex h-14 items-center justify-between border-b bg-card px-6">
       <div className="flex items-center gap-4">
         <h1 className="text-lg font-semibold">
-          {trip?.name || "Wanderlust Planner"}
+          {trip?.name || "Plan It"}
         </h1>
       </div>
 
