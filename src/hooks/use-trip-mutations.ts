@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useTripDataStore } from "@/store/trip-data-store";
 import { createClient } from "@/lib/supabase/client";
 import { hasSupabase } from "@/hooks/use-trip-data";
@@ -261,6 +262,17 @@ export function useCreateCity() {
     onError: (error, _variables, context) => {
       // Roll back to previous state on failure
       console.error("City creation failed:", error);
+      const pgError = error as { code?: string; message?: string };
+      if (pgError.code === "42501") {
+        toast.error("City creation failed: database permissions error", {
+          description: "Row Level Security policies may not be applied. Run the SQL in schema/rls_policies.sql against your Supabase database.",
+          duration: 10000,
+        });
+      } else {
+        toast.error("Failed to save city", {
+          description: pgError.message || "An unexpected error occurred. The city was removed.",
+        });
+      }
       if (context) {
         setCities(context.previousCities);
         setDays(context.previousDays);
@@ -759,6 +771,17 @@ export function useCreateTransport() {
     onError: (error, _variables, context) => {
       // Roll back to previous state on failure
       console.error("Transport creation failed:", error);
+      const pgError = error as { code?: string; message?: string };
+      if (pgError.code === "42501") {
+        toast.error("Transport creation failed: database permissions error", {
+          description: "Row Level Security policies may not be applied. Run the SQL in schema/rls_policies.sql against your Supabase database.",
+          duration: 10000,
+        });
+      } else {
+        toast.error("Failed to save transport", {
+          description: pgError.message || "An unexpected error occurred.",
+        });
+      }
       if (context) {
         setTransports(context.previousTransports);
       }
