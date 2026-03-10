@@ -48,7 +48,7 @@ const entityTypes = [
 
 export function AddActionItemDialog({ open, onOpenChange }: AddActionItemDialogProps) {
   const addActionItem = useAddActionItem();
-  const { lodgings, transports, reservations, parties, activities } = useTripDataStore();
+  const { trip, lodgings, transports, reservations, parties, activities } = useTripDataStore();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -99,7 +99,7 @@ export function AddActionItemDialog({ open, onOpenChange }: AddActionItemDialogP
       status: "pending",
     };
 
-    addActionItem.mutate(item);
+    addActionItem.mutate({ ...item, tripId: trip?.id } as Parameters<typeof addActionItem.mutate>[0]);
     resetForm();
     onOpenChange(false);
   };
@@ -209,7 +209,7 @@ export function AddActionItemDialog({ open, onOpenChange }: AddActionItemDialogP
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={!title.trim()}>
