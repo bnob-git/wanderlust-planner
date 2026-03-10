@@ -175,7 +175,7 @@ export function useCreateCity() {
         let dayNumber = 1;
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
           const dayId = crypto.randomUUID();
-          const dateStr = d.toISOString().split("T")[0];
+          const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
           localDays.push({
             id: dayId,
             createdAt: now,
@@ -185,7 +185,7 @@ export function useCreateCity() {
             cityId: cityId,
             dayNumber: dayNumber++,
             date: dateStr,
-            dayOfWeek: new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", { weekday: "long" }),
+            dayOfWeek: d.toLocaleDateString("en-US", { weekday: "long" }),
             status: "draft",
             timeBlocks: [
               { id: `${dayId}_morning`, type: "morning", timeRange: { start: "08:00", end: "13:00" }, activityIds: [] },
@@ -232,7 +232,7 @@ export function useCreateCity() {
             trip_id: city.tripId,
             city_id: created.id,
             day_number: dayNumber++,
-            date: d.toISOString().split("T")[0],
+            date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
             status: "draft",
             budget_estimate_amount: 0,
             budget_estimate_currency: "EUR",
