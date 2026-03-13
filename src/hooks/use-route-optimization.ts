@@ -14,9 +14,10 @@ export function useRouteOptimization(dayId: string, enabled: boolean = false) {
   const city = day ? getCity(day.cityId) : undefined;
   const activities = getActivitiesForDay(dayId);
   const lodging = day?.lodgingId ? getLodging(day.lodgingId) : undefined;
+  const activitiesKey = activities.map((a) => a.id).join(",");
 
   return useQuery<OptimizeRouteResponse>({
-    queryKey: ["ai-optimize-route", dayId],
+    queryKey: ["ai-optimize-route", dayId, activitiesKey],
     queryFn: async () => {
       if (!day || !city || activities.length < 3) {
         return {

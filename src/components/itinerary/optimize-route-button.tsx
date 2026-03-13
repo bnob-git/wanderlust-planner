@@ -39,7 +39,7 @@ export function OptimizeRouteButton({ day }: OptimizeRouteButtonProps) {
   const handleOpen = () => {
     setIsOpen(true);
     setFetchEnabled(true);
-    if (!data && !isLoading) {
+    if (!isLoading) {
       refetch();
     }
   };
