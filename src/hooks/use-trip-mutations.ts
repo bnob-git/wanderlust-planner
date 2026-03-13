@@ -1187,8 +1187,13 @@ export function useAddParty() {
             party.cityIds.map((cid) => ({ party_id: partyId, city_id: cid }))
           );
         }
-      } catch {
-        // parties table may not exist yet
+      } catch (error) {
+        const pgError = error as { code?: string };
+        if (pgError.code === "42P01") {
+          console.warn("Table not found — run the required migration.");
+          return;
+        }
+        throw error;
       }
     },
     onSuccess: () => {
@@ -1221,8 +1226,13 @@ export function useUpdateParty() {
           .update(dbData)
           .eq("id", partyId);
         if (error) throw error;
-      } catch {
-        // parties table may not exist yet
+      } catch (error) {
+        const pgError = error as { code?: string };
+        if (pgError.code === "42P01") {
+          console.warn("Table not found — run the required migration.");
+          return;
+        }
+        throw error;
       }
     },
     onSuccess: (_, variables) => {
@@ -1248,8 +1258,13 @@ export function useDeleteParty() {
           .delete()
           .eq("id", partyId);
         if (error) throw error;
-      } catch {
-        // parties table may not exist yet
+      } catch (error) {
+        const pgError = error as { code?: string };
+        if (pgError.code === "42P01") {
+          console.warn("Table not found — run the required migration.");
+          return;
+        }
+        throw error;
       }
     },
     onSuccess: () => {
@@ -1277,8 +1292,13 @@ export function useAddActionItem() {
         if (tripId) (dbData as Record<string, unknown>).trip_id = tripId;
         const { error } = await supabase.from("action_items").insert(dbData);
         if (error) throw error;
-      } catch {
-        // action_items table may not exist yet
+      } catch (error) {
+        const pgError = error as { code?: string };
+        if (pgError.code === "42P01") {
+          console.warn("Table not found — run the required migration.");
+          return;
+        }
+        throw error;
       }
     },
     onSuccess: () => {
@@ -1302,8 +1322,13 @@ export function useCompleteActionItem() {
           .update({ status: "completed", completed_at: new Date().toISOString() })
           .eq("id", itemId);
         if (error) throw error;
-      } catch {
-        // action_items table may not exist yet
+      } catch (error) {
+        const pgError = error as { code?: string };
+        if (pgError.code === "42P01") {
+          console.warn("Table not found — run the required migration.");
+          return;
+        }
+        throw error;
       }
     },
     onSuccess: () => {
@@ -1327,8 +1352,13 @@ export function useDeleteActionItem() {
           .delete()
           .eq("id", itemId);
         if (error) throw error;
-      } catch {
-        // action_items table may not exist yet
+      } catch (error) {
+        const pgError = error as { code?: string };
+        if (pgError.code === "42P01") {
+          console.warn("Table not found — run the required migration.");
+          return;
+        }
+        throw error;
       }
     },
     onSuccess: () => {

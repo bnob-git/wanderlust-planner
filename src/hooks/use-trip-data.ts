@@ -380,8 +380,12 @@ export function useTripsListQuery() {
     queryKey: ["trips-list"],
     queryFn: async () => {
       const supabase = getSupabase();
-      const { data, error } = await supabase
-        .from("trips").select("*").order("start_date", { ascending: false });
+      const { data: { user } } = await supabase.auth.getUser();
+      let query = supabase.from("trips").select("*").order("start_date", { ascending: false });
+      if (user) {
+        query = query.or(`created_by.eq.${user.id},is_public.eq.true`);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return (data || []).map((row: unknown) => {
         const dbTrip = row as DbTrip;
