@@ -9,6 +9,9 @@ import { TimeBlockSection } from "./time-block-section";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { Day } from "@/types";
+import { ConflictAlerts } from "./conflict-alerts";
+import { OptimizeRouteButton } from "./optimize-route-button";
+import { NaturalLanguageInput } from "./natural-language-input";
 import {
   ChevronDown,
   ChevronRight,
@@ -193,6 +196,7 @@ export function DayCard({
 
       {isExpanded && (
         <CardContent className="pt-0 pb-4">
+          <ConflictAlerts dayId={day.id} />
           {lodging && (
             <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-900">
               <div className="flex items-center gap-2 text-sm">
@@ -205,6 +209,10 @@ export function DayCard({
             </div>
           )}
 
+          <div className="flex items-center justify-end mb-2">
+            <OptimizeRouteButton day={day} />
+          </div>
+
           <div className="space-y-6">
             {day.timeBlocks.map((timeBlock) => (
               <TimeBlockSection
@@ -216,6 +224,8 @@ export function DayCard({
               />
             ))}
           </div>
+
+          {!isLocked && <NaturalLanguageInput day={day} />}
 
           {day.notes.length > 0 && (
             <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-900">

@@ -19,6 +19,7 @@ import {
   Home,
   LogOut,
   CheckSquare,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -36,6 +37,7 @@ const tripNavItems = [
   { id: "logistics", label: "Logistics", icon: Plane, path: "logistics" },
   { id: "tasks", label: "Tasks", icon: CheckSquare, path: "tasks" },
   { id: "budget", label: "Budget", icon: Wallet, path: "budget" },
+  { id: "ai-assistant", label: "AI Assistant", icon: Sparkles, path: "ai-assistant" },
 ];
 
 export function Sidebar() {

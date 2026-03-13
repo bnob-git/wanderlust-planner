@@ -18,6 +18,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ActivityCard } from "./activity-card";
 import type { TimeBlock, ActivityType } from "@/types";
+import { AiSuggestionsPanel } from "./ai-suggestions-panel";
 import { Plus, Sun, Sunset, Moon, Coffee } from "lucide-react";
 import {
   DndContext,
@@ -185,6 +186,10 @@ export function TimeBlockSection({
             </div>
           </SortableContext>
         </DndContext>
+      )}
+
+      {!isLocked && (
+        <AiSuggestionsPanel dayId={dayId} timeBlock={timeBlock} />
       )}
 
       <Dialog open={isAddActivityOpen} onOpenChange={setIsAddActivityOpen}>
