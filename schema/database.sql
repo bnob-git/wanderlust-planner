@@ -696,7 +696,7 @@ ALTER TABLE budget_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE files ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
 
--- Helper function: check if the current user has access to a trip
+-- Helper function: check if the current user has access to a trip (any role)
 -- SECURITY DEFINER avoids infinite recursion between trips and travelers policies
 CREATE OR REPLACE FUNCTION user_has_trip_access(trip_uuid UUID)
 RETURNS BOOLEAN AS $$
@@ -704,6 +704,17 @@ RETURNS BOOLEAN AS $$
     SELECT 1 FROM travelers
     WHERE trip_id = trip_uuid
     AND user_id = auth.uid()
+  );
+$$ LANGUAGE sql SECURITY DEFINER;
+
+-- Helper function: check if the current user can edit a trip (owner or editor only)
+CREATE OR REPLACE FUNCTION user_has_trip_edit_access(trip_uuid UUID)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM travelers
+    WHERE trip_id = trip_uuid
+    AND user_id = auth.uid()
+    AND role IN ('owner', 'editor')
   );
 $$ LANGUAGE sql SECURITY DEFINER;
 
@@ -717,7 +728,7 @@ CREATE POLICY trips_insert ON trips FOR INSERT WITH CHECK (
 );
 
 CREATE POLICY trips_update ON trips FOR UPDATE USING (
-  created_by = auth.uid() OR user_has_trip_access(id)
+  created_by = auth.uid() OR user_has_trip_edit_access(id)
 );
 
 CREATE POLICY trips_delete ON trips FOR DELETE USING (
@@ -730,15 +741,15 @@ CREATE POLICY travelers_select ON travelers FOR SELECT USING (
 );
 
 CREATE POLICY travelers_insert ON travelers FOR INSERT WITH CHECK (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY travelers_update ON travelers FOR UPDATE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY travelers_delete ON travelers FOR DELETE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 -- ---- Cities ----
@@ -747,15 +758,15 @@ CREATE POLICY cities_select ON cities FOR SELECT USING (
 );
 
 CREATE POLICY cities_insert ON cities FOR INSERT WITH CHECK (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY cities_update ON cities FOR UPDATE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY cities_delete ON cities FOR DELETE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 -- ---- Neighborhoods ----
@@ -764,15 +775,15 @@ CREATE POLICY neighborhoods_select ON neighborhoods FOR SELECT USING (
 );
 
 CREATE POLICY neighborhoods_insert ON neighborhoods FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM cities WHERE cities.id = neighborhoods.city_id AND user_has_trip_access(cities.trip_id))
+  EXISTS (SELECT 1 FROM cities WHERE cities.id = neighborhoods.city_id AND user_has_trip_edit_access(cities.trip_id))
 );
 
 CREATE POLICY neighborhoods_update ON neighborhoods FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM cities WHERE cities.id = neighborhoods.city_id AND user_has_trip_access(cities.trip_id))
+  EXISTS (SELECT 1 FROM cities WHERE cities.id = neighborhoods.city_id AND user_has_trip_edit_access(cities.trip_id))
 );
 
 CREATE POLICY neighborhoods_delete ON neighborhoods FOR DELETE USING (
-  EXISTS (SELECT 1 FROM cities WHERE cities.id = neighborhoods.city_id AND user_has_trip_access(cities.trip_id))
+  EXISTS (SELECT 1 FROM cities WHERE cities.id = neighborhoods.city_id AND user_has_trip_edit_access(cities.trip_id))
 );
 
 -- ---- Days ----
@@ -781,15 +792,15 @@ CREATE POLICY days_select ON days FOR SELECT USING (
 );
 
 CREATE POLICY days_insert ON days FOR INSERT WITH CHECK (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY days_update ON days FOR UPDATE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY days_delete ON days FOR DELETE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 -- ---- Time Blocks ----
@@ -798,15 +809,15 @@ CREATE POLICY time_blocks_select ON time_blocks FOR SELECT USING (
 );
 
 CREATE POLICY time_blocks_insert ON time_blocks FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM days WHERE days.id = time_blocks.day_id AND user_has_trip_access(days.trip_id))
+  EXISTS (SELECT 1 FROM days WHERE days.id = time_blocks.day_id AND user_has_trip_edit_access(days.trip_id))
 );
 
 CREATE POLICY time_blocks_update ON time_blocks FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM days WHERE days.id = time_blocks.day_id AND user_has_trip_access(days.trip_id))
+  EXISTS (SELECT 1 FROM days WHERE days.id = time_blocks.day_id AND user_has_trip_edit_access(days.trip_id))
 );
 
 CREATE POLICY time_blocks_delete ON time_blocks FOR DELETE USING (
-  EXISTS (SELECT 1 FROM days WHERE days.id = time_blocks.day_id AND user_has_trip_access(days.trip_id))
+  EXISTS (SELECT 1 FROM days WHERE days.id = time_blocks.day_id AND user_has_trip_edit_access(days.trip_id))
 );
 
 -- ---- Activities ----
@@ -815,15 +826,15 @@ CREATE POLICY activities_select ON activities FOR SELECT USING (
 );
 
 CREATE POLICY activities_insert ON activities FOR INSERT WITH CHECK (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY activities_update ON activities FOR UPDATE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY activities_delete ON activities FOR DELETE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 -- ---- Lodgings ----
@@ -832,15 +843,15 @@ CREATE POLICY lodgings_select ON lodgings FOR SELECT USING (
 );
 
 CREATE POLICY lodgings_insert ON lodgings FOR INSERT WITH CHECK (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY lodgings_update ON lodgings FOR UPDATE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY lodgings_delete ON lodgings FOR DELETE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 -- ---- Transports ----
@@ -849,15 +860,15 @@ CREATE POLICY transports_select ON transports FOR SELECT USING (
 );
 
 CREATE POLICY transports_insert ON transports FOR INSERT WITH CHECK (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY transports_update ON transports FOR UPDATE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY transports_delete ON transports FOR DELETE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 -- ---- Reservations ----
@@ -866,15 +877,15 @@ CREATE POLICY reservations_select ON reservations FOR SELECT USING (
 );
 
 CREATE POLICY reservations_insert ON reservations FOR INSERT WITH CHECK (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY reservations_update ON reservations FOR UPDATE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY reservations_delete ON reservations FOR DELETE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 -- ---- Budget Items ----
@@ -883,15 +894,15 @@ CREATE POLICY budget_items_select ON budget_items FOR SELECT USING (
 );
 
 CREATE POLICY budget_items_insert ON budget_items FOR INSERT WITH CHECK (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY budget_items_update ON budget_items FOR UPDATE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY budget_items_delete ON budget_items FOR DELETE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 -- ---- Files ----
@@ -900,15 +911,15 @@ CREATE POLICY files_select ON files FOR SELECT USING (
 );
 
 CREATE POLICY files_insert ON files FOR INSERT WITH CHECK (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY files_update ON files FOR UPDATE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 CREATE POLICY files_delete ON files FOR DELETE USING (
-  user_has_trip_access(trip_id)
+  user_has_trip_edit_access(trip_id)
 );
 
 -- ---- Notes ----
