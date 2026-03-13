@@ -928,15 +928,15 @@ CREATE POLICY notes_select ON notes FOR SELECT USING (
 );
 
 CREATE POLICY notes_insert ON notes FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM days WHERE days.id = notes.day_id AND user_has_trip_access(days.trip_id))
+  EXISTS (SELECT 1 FROM days WHERE days.id = notes.day_id AND user_has_trip_edit_access(days.trip_id))
 );
 
 CREATE POLICY notes_update ON notes FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM days WHERE days.id = notes.day_id AND user_has_trip_access(days.trip_id))
+  EXISTS (SELECT 1 FROM days WHERE days.id = notes.day_id AND user_has_trip_edit_access(days.trip_id))
 );
 
 CREATE POLICY notes_delete ON notes FOR DELETE USING (
-  EXISTS (SELECT 1 FROM days WHERE days.id = notes.day_id AND user_has_trip_access(days.trip_id))
+  EXISTS (SELECT 1 FROM days WHERE days.id = notes.day_id AND user_has_trip_edit_access(days.trip_id))
 );
 
 -- ============================================================================
