@@ -28,6 +28,7 @@ interface TileColor {
   border: string;
   text: string;
   accent: string;
+  accentLight: string;
   icon: string;
 }
 
@@ -44,6 +45,7 @@ const TILE_COLORS: Record<string, TileColor> = {
     border: "border-indigo-500",
     text: "text-indigo-100",
     accent: "bg-indigo-500",
+    accentLight: "bg-indigo-500/20",
     icon: "text-indigo-400",
   },
   "regional-director": {
@@ -51,6 +53,7 @@ const TILE_COLORS: Record<string, TileColor> = {
     border: "border-emerald-500",
     text: "text-emerald-100",
     accent: "bg-emerald-500",
+    accentLight: "bg-emerald-500/20",
     icon: "text-emerald-400",
   },
   "account-director-enterprise": {
@@ -58,6 +61,7 @@ const TILE_COLORS: Record<string, TileColor> = {
     border: "border-amber-500",
     text: "text-amber-100",
     accent: "bg-amber-500",
+    accentLight: "bg-amber-500/20",
     icon: "text-amber-400",
   },
   "account-director-emerging": {
@@ -65,6 +69,7 @@ const TILE_COLORS: Record<string, TileColor> = {
     border: "border-rose-500",
     text: "text-rose-100",
     accent: "bg-rose-500",
+    accentLight: "bg-rose-500/20",
     icon: "text-rose-400",
   },
 };
@@ -166,7 +171,7 @@ function DraggableTile({ tile }: { tile: OrgTile }) {
             <div
               className={cn(
                 "w-8 h-8 rounded-lg flex items-center justify-center",
-                tile.color.accent + "/20"
+                tile.color.accentLight
               )}
             >
               <User className={cn("h-4 w-4", tile.color.icon)} />
@@ -181,7 +186,7 @@ function DraggableTile({ tile }: { tile: OrgTile }) {
                 tile.color.text
               )}
             >
-              {tile.role === tile.label ? "Role" : "Role"}
+              {"Role"}
             </div>
             <div className={cn("text-sm font-bold leading-tight", tile.color.text)}>
               {tile.label}
