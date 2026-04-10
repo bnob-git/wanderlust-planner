@@ -19,6 +19,7 @@ import {
   Home,
   LogOut,
   CheckSquare,
+  Network,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -94,6 +95,18 @@ export function Sidebar() {
           >
             <Home className="h-5 w-5" />
             {!collapsed && <span>All Trips</span>}
+          </Button>
+        </Link>
+        <Link href="/org-chart">
+          <Button
+            variant={pathname === "/org-chart" ? "secondary" : "ghost"}
+            className={cn(
+              "w-full justify-start gap-3",
+              collapsed && "justify-center px-2"
+            )}
+          >
+            <Network className="h-5 w-5" />
+            {!collapsed && <span>Org Chart</span>}
           </Button>
         </Link>
         {currentTripId && (
